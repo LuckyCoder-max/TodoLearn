@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
+using TodoLearn;
+using ToDoListApp;
 
-namespace TodoLearn
+namespace ToDoListApp
 {
     public static class MauiProgram
     {
@@ -15,9 +17,7 @@ namespace TodoLearn
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-#if DEBUG
-    		builder.Logging.AddDebug();
-#endif
+            builder.Logging.AddDebug();
 
             return builder.Build();
         }
