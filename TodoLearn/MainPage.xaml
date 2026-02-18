@@ -23,14 +23,41 @@
             <CollectionView ItemsSource="{Binding Tasks}" SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <StackLayout Orientation="Horizontal" Padding="8" Spacing="8">
-                            <StackLayout.GestureRecognizers>
-                                <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnTaskDoubleTapped" CommandParameter="{Binding .}" />
-                            </StackLayout.GestureRecognizers>
+                        <Grid Padding="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                            <Label Text="{Binding Text}" HorizontalOptions="FillAndExpand" />
-                            <Label Text="{Binding CreatedAt, StringFormat='{}{0:MMM d, yyyy HH:mm}'}" VerticalOptions="Center" Margin="8,0" />
-                        </StackLayout>
+                            <Frame Grid.Column="0" WidthRequest="24" HeightRequest="24" CornerRadius="12" HasShadow="False" VerticalOptions="Center" HorizontalOptions="Center">
+                                <Frame.GestureRecognizers>
+                                    <PointerGestureRecognizer PointerEntered="OnPriorityPointerEntered" PointerExited="OnPriorityPointerExited" />
+                                </Frame.GestureRecognizers>
+                                <Frame.Triggers>
+                                    <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="Low">
+                                        <Setter Property="BackgroundColor" Value="Green" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="Medium">
+                                        <Setter Property="BackgroundColor" Value="Yellow" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="High">
+                                        <Setter Property="BackgroundColor" Value="Red" />
+                                    </DataTrigger>
+                                </Frame.Triggers>
+                            </Frame>
+
+                            <StackLayout Grid.Column="1" Orientation="Horizontal" Padding="0" Spacing="8">
+                                <StackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnTaskDoubleTapped" CommandParameter="{Binding .}" />
+                                </StackLayout.GestureRecognizers>
+
+                                <Label Text="{Binding Text}" HorizontalOptions="FillAndExpand" VerticalOptions="Center" />
+                                <StackLayout VerticalOptions="Center" Spacing="0">
+                                    <Label Text="{Binding CreatedAt, StringFormat='{}{0:MMM d, yyyy HH:mm}'}" VerticalOptions="Center" Margin="8,0" />
+                                    <Label Text="{Binding DueAt, StringFormat='Due by: {0:MMM d, yyyy HH:mm}'}" FontSize="12" IsVisible="{Binding IsDetailsVisible}" />
+                                </StackLayout>
+                            </StackLayout>
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

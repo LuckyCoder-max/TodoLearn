@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using TodoLearn.Models;
 
 namespace TodoLearn
 {
@@ -11,8 +12,8 @@ namespace TodoLearn
             InitializeComponent();
             BindingContext = this;
 
-            Tasks.Add(new TaskItem { Text = "Finish project report" });
-            Tasks.Add(new TaskItem { Text = "Buy groceries" });
+            Tasks.Add(new TaskItem { Text = "Finish project report", Priority = TaskPriority.High, DueAt = DateTime.Now.AddHours(4) });
+            Tasks.Add(new TaskItem { Text = "Buy groceries", Priority = TaskPriority.Low, DueAt = DateTime.Now.AddDays(1) });
         }
 
         private void OnAddTaskClicked(object? sender, EventArgs e)
@@ -39,19 +40,23 @@ namespace TodoLearn
                 if (Tasks.Contains(tp)) Tasks.Remove(tp);
             }
         }
-    }
 
-    public class TaskItem : System.ComponentModel.INotifyPropertyChanged
-    {
-        public TaskItem()
+        private void OnPriorityPointerEntered(object? sender, EventArgs e)
         {
-            CreatedAt = DateTime.Now;
+            if (sender is BindableObject b && b.BindingContext is TaskItem t)
+            {
+                t.IsDetailsVisible = true;
+            }
         }
 
-        public string? Text { get; set; }
-
-        public DateTime CreatedAt { get; }
-
-        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+        private void OnPriorityPointerExited(object? sender, EventArgs e)
+        {
+            if (sender is BindableObject b && b.BindingContext is TaskItem t)
+            {
+                t.IsDetailsVisible = false;
+            }
+        }
     }
+
+    // TaskItem and TaskPriority moved to TodoLearn/Models/TaskItem.cs
 }
