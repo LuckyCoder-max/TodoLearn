@@ -57,6 +57,4 @@ namespace TodoLearn
             }
         }
     }
-
-    // TaskItem and TaskPriority moved to TodoLearn/Models/TaskItem.cs
 }
