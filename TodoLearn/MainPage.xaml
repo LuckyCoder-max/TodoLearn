@@ -14,14 +14,33 @@
                 <DataTemplate>
                     <Frame CornerRadius="5" Margin="0,4" Padding="10">
                         <StackLayout Orientation="Horizontal" Spacing="8">
-                            <Label Text="{Binding Text}" HorizontalOptions="FillAndExpand" />
-                            <Label Text="{Binding CreatedAt, StringFormat='{}{0:MMM d}'}" FontSize="12" VerticalOptions="Center" />
+                            
+                            <CheckBox IsChecked="{Binding IsCompleted}" />
+
+                            <Label Text="{Binding Text}" 
+                            HorizontalOptions="FillAndExpand">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                         Binding="{Binding IsCompleted}"
+                                         Value="True">
+                                        <Setter Property="TextDecorations"
+                                        Value="Strikethrough"/>
+                                        <Setter Property="TextColor"
+                                        Value="Gray"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+
+                            <Label Text="{Binding CreatedAt, StringFormat='{}{0:MMM d}'}"
+                           FontSize="12"
+                           VerticalOptions="Center" />
+
                         </StackLayout>
                     </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-
+        
         <Button Text="Clear" Clicked="OnClearCompletedClicked" HorizontalOptions="End" />
     </StackLayout>
 </ContentPage>
