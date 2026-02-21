@@ -1,42 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="TodoLearn.MainPage">
-
-    <Grid ColumnDefinitions="220, *">
-        <StackLayout Grid.Column="0" Padding="12" Spacing="8">
-            <Label Text="To-Do" FontSize="18" />
-            <Label Text="My Day" />
-            <Label Text="Important" />
-            <Label Text="Planned" />
-            <Label Text="All Tasks" />
+             x:Class="TodoLearn.MainPage"
+             Title="{Binding Title}">
+    <StackLayout Padding="16" Spacing="10">
+        <StackLayout Orientation="Horizontal" Spacing="8">
+            <Entry x:Name="NewTaskEntry" Placeholder="Add a task..." HorizontalOptions="FillAndExpand" />
+            <Button Text="Add" Clicked="OnAddTaskClicked" />
         </StackLayout>
 
-        <StackLayout Grid.Column="1" Padding="16" Spacing="10">
-            <Label Text="My Day" FontSize="18" />
-
-            <StackLayout Orientation="Horizontal" Spacing="8">
-                <Entry x:Name="NewTaskEntry" Placeholder="Add a task..." HorizontalOptions="FillAndExpand" />
-                <Button Text="Add" Clicked="OnAddTaskClicked" />
-            </StackLayout>
-
-            <CollectionView ItemsSource="{Binding Tasks}" SelectionMode="None">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <StackLayout Orientation="Horizontal" Padding="8" Spacing="8">
-                            <StackLayout.GestureRecognizers>
-                                <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnTaskDoubleTapped" CommandParameter="{Binding .}" />
-                            </StackLayout.GestureRecognizers>
-
+        <CollectionView ItemsSource="{Binding Tasks}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame CornerRadius="5" Margin="0,4" Padding="10">
+                        <StackLayout Orientation="Horizontal" Spacing="8">
                             <Label Text="{Binding Text}" HorizontalOptions="FillAndExpand" />
-                            <Label Text="{Binding CreatedAt, StringFormat='{}{0:MMM d, yyyy HH:mm}'}" VerticalOptions="Center" Margin="8,0" />
+                            <Label Text="{Binding CreatedAt, StringFormat='{}{0:MMM d}'}" FontSize="12" VerticalOptions="Center" />
                         </StackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
-            <Button Text="Clear" Clicked="OnClearCompletedClicked" HorizontalOptions="End" />
-        </StackLayout>
-    </Grid>
-
+        <Button Text="Clear" Clicked="OnClearCompletedClicked" HorizontalOptions="End" />
+    </StackLayout>
 </ContentPage>
