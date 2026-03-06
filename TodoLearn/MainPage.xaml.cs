@@ -1,4 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 
 namespace TodoLearn
 {
@@ -12,9 +16,11 @@ namespace TodoLearn
             BindingContext = this;
 
             Tasks.CollectionChanged += Tasks_CollectionChanged;
-
+            // удалить после тестирования с БД
             Tasks.Add(new TaskItem { Text = "Finish project report" });
             Tasks.Add(new TaskItem { Text = "Buy groceries" });
+            Tasks.Add(new TaskItem { Text = "Finish project report", CreatedAt = DateTime.Now.AddYears(-2) });
+            Tasks.Add(new TaskItem { Text = "Buy groceries", CreatedAt = DateTime.Now.AddDays(-1) });
         }
 
         private void OnAddTaskClicked(object? sender, EventArgs e)
@@ -71,36 +77,37 @@ namespace TodoLearn
         }
     }
 
-    public class TaskItem : System.ComponentModel.INotifyPropertyChanged
+    public partial class TaskItem : ObservableObject
     {
-        private bool _isCompleted;
+        [ObservableProperty]
+        private string? text;
 
-        public TaskItem()
+        [ObservableProperty]
+        private bool isCompleted;
+
+        //public DateTime CreatedAt { get; } = DateTime.Now;
+        // удалить после тестирования 
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        //TODO протестировать коректную работу свойства при хранении в базе данных
+
+        public string DisplayDate
         {
-            CreatedAt = DateTime.Now;
-        }
-
-        public string? Text { get; set; }
-
-        public DateTime CreatedAt { get; }
-
-        public bool IsCompleted
-        {
-            get => _isCompleted;
-            set
+            get
             {
-                if (_isCompleted != value)
-                {
-                    _isCompleted = value;
-                    OnPropertyChanged(nameof(IsCompleted));
-                }
+                var now = DateTime.Now;
+
+                if (CreatedAt.Date == now.Date)
+                    return CreatedAt.ToString("HH:mm");
+
+                if (CreatedAt.Date == now.Date.AddDays(-1))
+                    return "Yesterday";
+
+                if (CreatedAt.Year == now.Year)
+                    return CreatedAt.ToString("dd MMM");
+
+                return CreatedAt.ToString("dd MMM yyyy");
             }
         }
-
-        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
-
-        protected void OnPropertyChanged(string name)
-            => PropertyChanged?.Invoke(this,
-                new System.ComponentModel.PropertyChangedEventArgs(name));
     }
 }
