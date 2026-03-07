@@ -6,10 +6,10 @@
     <Grid ColumnDefinitions="220, *">
         <StackLayout Grid.Column="0" Padding="12" Spacing="8">
             <Label Text="To-Do" FontSize="18" />
-            <Label Text="My Day" />
-            <Label Text="Important" />
-            <Label Text="Planned" />
-            <Label Text="All Tasks" />
+            <Button Text="My Day" Clicked="OnFilterClicked" CommandParameter="MyDay" />
+            <Button Text="Important" Clicked="OnFilterClicked" CommandParameter="Important" />
+            <Button Text="Planned" Clicked="OnFilterClicked" CommandParameter="Planned" />
+            <Button Text="All Tasks" Clicked="OnFilterClicked" CommandParameter="All" />
         </StackLayout>
 
         <StackLayout Grid.Column="1" Padding="16" Spacing="10">
@@ -20,7 +20,7 @@
                 <Button Text="Add" Clicked="OnAddTaskClicked" />
             </StackLayout>
 
-            <CollectionView ItemsSource="{Binding Tasks}" SelectionMode="None">
+            <CollectionView x:Name="TasksCollectionView" ItemsSource="{Binding DisplayTasks}" SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Grid Padding="8">
@@ -31,30 +31,55 @@
 
                             <Frame Grid.Column="0" WidthRequest="24" HeightRequest="24" CornerRadius="12" HasShadow="False" VerticalOptions="Center" HorizontalOptions="Center">
                                 <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnPriorityTapped" NumberOfTapsRequired="1" />
                                     <PointerGestureRecognizer PointerEntered="OnPriorityPointerEntered" PointerExited="OnPriorityPointerExited" />
                                 </Frame.GestureRecognizers>
                                 <Frame.Triggers>
                                     <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="Low">
-                                        <Setter Property="BackgroundColor" Value="Green" />
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PriorityLowColor}" />
                                     </DataTrigger>
                                     <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="Medium">
-                                        <Setter Property="BackgroundColor" Value="Yellow" />
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PriorityMediumColor}" />
                                     </DataTrigger>
                                     <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="High">
-                                        <Setter Property="BackgroundColor" Value="Red" />
+                                        <Setter Property="BackgroundColor" Value="{StaticResource PriorityHighColor}" />
                                     </DataTrigger>
                                 </Frame.Triggers>
                             </Frame>
 
-                            <StackLayout Grid.Column="1" Orientation="Horizontal" Padding="0" Spacing="8">
-                                <StackLayout.GestureRecognizers>
-                                    <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnTaskDoubleTapped" CommandParameter="{Binding .}" />
-                                </StackLayout.GestureRecognizers>
+                            <StackLayout Grid.Column="1" Orientation="Vertical" Padding="0" Spacing="6">
+                                <StackLayout Orientation="Horizontal" Spacing="8">
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnTaskDoubleTapped" CommandParameter="{Binding .}" />
+                                    </StackLayout.GestureRecognizers>
 
-                                <Label Text="{Binding Text}" HorizontalOptions="FillAndExpand" VerticalOptions="Center" />
-                                <StackLayout VerticalOptions="Center" Spacing="0">
-                                    <Label Text="{Binding CreatedAt, StringFormat='{}{0:MMM d, yyyy HH:mm}'}" VerticalOptions="Center" Margin="8,0" />
-                                    <Label Text="{Binding DueAt, StringFormat='Due by: {0:MMM d, yyyy HH:mm}'}" FontSize="12" IsVisible="{Binding IsDetailsVisible}" />
+                                    <Label Text="{Binding Text}" HorizontalOptions="FillAndExpand" VerticalOptions="Center" />
+                                    <StackLayout VerticalOptions="Center" Spacing="0">
+                                        <Label Text="{Binding CreatedAt, StringFormat='{}{0:MMM d, yyyy HH:mm}'}" VerticalOptions="Center" Margin="8,0" />
+                                        <Label Text="{Binding DueAt, StringFormat='Due by: {0:MMM d, yyyy HH:mm}'}" FontSize="12">
+                                        </Label>
+                                    </StackLayout>
+                                    <Button Text="Edit" Clicked="OnEditClicked" />
+                                </StackLayout>
+
+                                <StackLayout Orientation="Vertical" Spacing="6" IsVisible="{Binding IsEditing}">
+                                    <StackLayout Orientation="Horizontal" Spacing="8" VerticalOptions="Center">
+                                        <Label Text="Priority:" VerticalOptions="Center" />
+                                        <Button Text="Low" BackgroundColor="{StaticResource PriorityLowColor}" Clicked="OnPrioritySelectClicked" CommandParameter="0" />
+                                        <Button Text="Medium" BackgroundColor="{StaticResource PriorityMediumColor}" Clicked="OnPrioritySelectClicked" CommandParameter="1" />
+                                        <Button Text="High" BackgroundColor="{StaticResource PriorityHighColor}" Clicked="OnPrioritySelectClicked" CommandParameter="2" />
+                                    </StackLayout>
+
+                                    <StackLayout Orientation="Horizontal" Spacing="8">
+                                        <Label Text="Due:" VerticalOptions="Center" />
+                                        <DatePicker Date="{Binding DueDate, Mode=TwoWay}" />
+                                        <TimePicker Time="{Binding DueTime, Mode=TwoWay}" />
+                                    </StackLayout>
+
+                                    <StackLayout Orientation="Horizontal" Spacing="8" HorizontalOptions="End">
+                                        <Button Text="Save" Clicked="OnSaveClicked" />
+                                        <Button Text="Cancel" Clicked="OnCancelClicked" />
+                                    </StackLayout>
                                 </StackLayout>
                             </StackLayout>
                         </Grid>

@@ -41,4 +41,12 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+    
+    <Color x:Key="PriorityLowColor">#4CAF50</Color>
+    <Color x:Key="PriorityMediumColor">#FFEB3B</Color>
+    <Color x:Key="PriorityHighColor">#F44336</Color>
+
+    <SolidColorBrush x:Key="PriorityLowBrush" Color="{StaticResource PriorityLowColor}" />
+    <SolidColorBrush x:Key="PriorityMediumBrush" Color="{StaticResource PriorityMediumColor}" />
+    <SolidColorBrush x:Key="PriorityHighBrush" Color="{StaticResource PriorityHighColor}" />
 </ResourceDictionary>
