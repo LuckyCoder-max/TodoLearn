@@ -12,15 +12,22 @@
             <Button Text="All Tasks" Clicked="OnFilterClicked" CommandParameter="All" />
         </StackLayout>
 
-        <StackLayout Grid.Column="1" Padding="16" Spacing="10">
-            <Label Text="My Day" FontSize="18" />
+        <Grid Grid.Column="1" Padding="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-            <StackLayout Orientation="Horizontal" Spacing="8">
+            <Label Grid.Row="0" Text="My Day" FontSize="18" />
+
+            <StackLayout Grid.Row="1" Orientation="Horizontal" Spacing="8">
                 <Entry x:Name="NewTaskEntry" Placeholder="Add a task..." HorizontalOptions="FillAndExpand" />
                 <Button Text="Add" Clicked="OnAddTaskClicked" />
             </StackLayout>
 
-            <CollectionView x:Name="TasksCollectionView" ItemsSource="{Binding DisplayTasks}" SelectionMode="None">
+            <CollectionView Grid.Row="2" x:Name="TasksCollectionView" ItemsSource="{Binding DisplayTasks}" SelectionMode="None" VerticalOptions="FillAndExpand">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Grid Padding="8">
@@ -59,7 +66,7 @@
                                         <Label Text="{Binding DueAt, StringFormat='Due by: {0:MMM d, yyyy HH:mm}'}" FontSize="12">
                                         </Label>
                                     </StackLayout>
-                                    <Button Text="Edit" Clicked="OnEditClicked" />
+                                    <Button Text="Delete" Clicked="OnDeleteClicked" CommandParameter="{Binding .}" />
                                 </StackLayout>
 
                                 <StackLayout Orientation="Vertical" Spacing="6" IsVisible="{Binding IsEditing}">
@@ -87,8 +94,8 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Button Text="Clear" Clicked="OnClearCompletedClicked" HorizontalOptions="End" />
-        </StackLayout>
+            <Button Grid.Row="3" Text="Clear" Clicked="OnClearCompletedClicked" HorizontalOptions="End" />
+        </Grid>
     </Grid>
 
 </ContentPage>

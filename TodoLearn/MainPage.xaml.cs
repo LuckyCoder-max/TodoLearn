@@ -8,7 +8,10 @@ namespace TodoLearn
     {
         public ObservableCollection<TaskItem> Tasks { get; } = new ObservableCollection<TaskItem>();
         public ObservableCollection<TaskItem> DisplayTasks { get; } = new ObservableCollection<TaskItem>();
-        private string _currentFilter = "All";
+
+        private FilterType _currentFilter = FilterType.All;
+        private readonly Dictionary<TaskItem, (string? Text, DateTime DueAt, TaskPriority Priority, bool IsCompleted)> _editBackups
+            = new Dictionary<TaskItem, (string?, DateTime, TaskPriority, bool)>();
 
         public MainPage()
         {
@@ -32,7 +35,17 @@ namespace TodoLearn
             NewTaskEntry.Text = string.Empty;
         }
 
-        private void OnFilterClicked(object? sender, EventArgs e) { }
+        private void OnFilterClicked(object? sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.CommandParameter is string s)
+            {
+                if (Enum.TryParse<FilterType>(s, true, out var f))
+                {
+                    _currentFilter = f;
+                    RefreshDisplay();
+                }
+            }
+        }
 
         private void RefreshDisplay()
         {
@@ -40,16 +53,16 @@ namespace TodoLearn
             IEnumerable<TaskItem> items = Tasks;
             switch (_currentFilter)
             {
-                case "Important":
+                case FilterType.Important:
                     items = Tasks.Where(t => t.Priority == TaskPriority.High);
                     break;
-                case "Planned":
+                case FilterType.Planned:
                     items = Tasks.Where(t => t.DueAt > DateTime.Now);
                     break;
-                case "All":
+                case FilterType.All:
                     items = Tasks;
                     break;
-                case "MyDay":
+                case FilterType.MyDay:
                 default:
                     items = Tasks.Where(t => t.DueAt.Date == DateTime.Now.Date);
                     break;
@@ -68,11 +81,22 @@ namespace TodoLearn
         {
             if (sender is BindableObject b && b.BindingContext is TaskItem t)
             {
-                if (Tasks.Contains(t)) Tasks.Remove(t);
+                if (!_editBackups.ContainsKey(t))
+                {
+                    _editBackups[t] = (t.Text, t.DueAt, t.Priority, t.IsCompleted);
+                }
+                t.IsEditing = true;
             }
-            else if (sender is Button btn && btn.CommandParameter is TaskItem tp)
+        }
+
+
+        
+
+        private void OnDeleteClicked(object? sender, EventArgs e)
+        {
+            if (sender is Button b && b.CommandParameter is TaskItem t)
             {
-                if (Tasks.Contains(tp)) Tasks.Remove(tp);
+                if (Tasks.Contains(t)) Tasks.Remove(t);
             }
         }
 
@@ -102,18 +126,12 @@ namespace TodoLearn
 
         
 
-        private void OnEditClicked(object? sender, EventArgs e)
-        {
-            if (sender is Button btn && btn.BindingContext is TaskItem t)
-            {
-                t.IsEditing = true;
-            }
-        }
-
         private void OnSaveClicked(object? sender, EventArgs e)
         {
             if (sender is Button btn && btn.BindingContext is TaskItem t)
             {
+                if (_editBackups.ContainsKey(t))
+                    _editBackups.Remove(t);
                 t.IsEditing = false;
             }
         }
@@ -122,8 +140,15 @@ namespace TodoLearn
         {
             if (sender is Button btn && btn.BindingContext is TaskItem t)
             {
+                if (_editBackups.TryGetValue(t, out var backup))
+                {
+                    t.Text = backup.Text;
+                    t.DueAt = backup.DueAt;
+                    t.Priority = backup.Priority;
+                    t.IsCompleted = backup.IsCompleted;
+                    _editBackups.Remove(t);
+                }
                 t.IsEditing = false;
-                // пофиксить с канселом - чтобы сохраняять
             }
         }
 
