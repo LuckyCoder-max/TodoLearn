@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using TodoLearn.Models;
 
 namespace TodoLearn
@@ -13,25 +14,39 @@ namespace TodoLearn
         private readonly Dictionary<TaskItem, (string? Text, DateTime DueAt, TaskPriority Priority, bool IsCompleted)> _editBackups
             = new Dictionary<TaskItem, (string?, DateTime, TaskPriority, bool)>();
 
-        public MainPage()
+        private readonly IDbContextFactory<AppDbContext> _dbFactory;
+
+        public MainPage(IDbContextFactory<AppDbContext> dbFactory)
         {
             InitializeComponent();
             BindingContext = this;
-
-            Tasks.Add(new TaskItem { Text = "Finish project report", Priority = TaskPriority.High, DueAt = DateTime.Now.AddHours(4) });
-            Tasks.Add(new TaskItem { Text = "Buy groceries", Priority = TaskPriority.Low, DueAt = DateTime.Now.AddDays(1) });
+            _dbFactory = dbFactory;
 
             Tasks.CollectionChanged += (_, __) => RefreshDisplay();
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            Tasks.Clear();
+            await using var db = await _dbFactory.CreateDbContextAsync();
+            var items = await db.Tasks.OrderBy(t => t.CreatedAt).ToListAsync();
+            foreach (var it in items)
+                Tasks.Add(it);
             RefreshDisplay();
         }
 
         
 
-        private void OnAddTaskClicked(object? sender, EventArgs e)
+        private async void OnAddTaskClicked(object? sender, EventArgs e)
         {
             var text = NewTaskEntry?.Text?.Trim();
             if (string.IsNullOrWhiteSpace(text)) return;
-            Tasks.Add(new TaskItem { Text = text });
+            var task = new TaskItem { Text = text };
+            await using var db = await _dbFactory.CreateDbContextAsync();
+            db.Tasks.Add(task);
+            await db.SaveChangesAsync();
+            Tasks.Add(task);
             NewTaskEntry.Text = string.Empty;
         }
 
@@ -72,8 +87,12 @@ namespace TodoLearn
                 DisplayTasks.Add(it);
         }
 
-        private void OnClearCompletedClicked(object? sender, EventArgs e)
+        private async void OnClearCompletedClicked(object? sender, EventArgs e)
         {
+            await using var db = await _dbFactory.CreateDbContextAsync();
+            var all = await db.Tasks.ToListAsync();
+            db.Tasks.RemoveRange(all);
+            await db.SaveChangesAsync();
             Tasks.Clear();
         }
 
@@ -92,10 +111,13 @@ namespace TodoLearn
 
         
 
-        private void OnDeleteClicked(object? sender, EventArgs e)
+        private async void OnDeleteClicked(object? sender, EventArgs e)
         {
             if (sender is Button b && b.CommandParameter is TaskItem t)
             {
+                await using var db = await _dbFactory.CreateDbContextAsync();
+                db.Tasks.Remove(t);
+                await db.SaveChangesAsync();
                 if (Tasks.Contains(t)) Tasks.Remove(t);
             }
         }
@@ -126,12 +148,15 @@ namespace TodoLearn
 
         
 
-        private void OnSaveClicked(object? sender, EventArgs e)
+        private async void OnSaveClicked(object? sender, EventArgs e)
         {
             if (sender is Button btn && btn.BindingContext is TaskItem t)
             {
                 if (_editBackups.ContainsKey(t))
                     _editBackups.Remove(t);
+                await using var db = await _dbFactory.CreateDbContextAsync();
+                db.Tasks.Update(t);
+                await db.SaveChangesAsync();
                 t.IsEditing = false;
             }
         }
