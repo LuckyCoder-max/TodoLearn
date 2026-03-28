@@ -70,6 +70,7 @@
                                 </StackLayout>
 
                                 <StackLayout Orientation="Vertical" Spacing="6" IsVisible="{Binding IsEditing}">
+                                    <Entry Text="{Binding Text, Mode=TwoWay}" Placeholder="Edit task text..." />
                                     <StackLayout Orientation="Horizontal" Spacing="8" VerticalOptions="Center">
                                         <Label Text="Priority:" VerticalOptions="Center" />
                                         <Button Text="Low" BackgroundColor="{StaticResource PriorityLowColor}" Clicked="OnPrioritySelectClicked" CommandParameter="0" />
