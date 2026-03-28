@@ -27,7 +27,6 @@ namespace TodoLearn
 
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
             Tasks.Clear();
             await using var db = await _dbFactory.CreateDbContextAsync();
             var items = await db.Tasks.OrderBy(t => t.CreatedAt).ToListAsync();
