@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using TodoLearn.Models;
+using TodoLearn.Services;
 
 namespace TodoLearn
 {
@@ -47,6 +48,7 @@ namespace TodoLearn
             await db.SaveChangesAsync();
             Tasks.Add(task);
             NewTaskEntry.Text = string.Empty;
+            SimpleLogger.Log($"Added task '{task.Text}' (Id={task.Id})");
         }
 
         private void OnFilterClicked(object? sender, EventArgs e)
@@ -118,6 +120,7 @@ namespace TodoLearn
                 db.Tasks.Remove(t);
                 await db.SaveChangesAsync();
                 if (Tasks.Contains(t)) Tasks.Remove(t);
+                SimpleLogger.Log($"Deleted task '{t.Text}' (Id={t.Id})");
             }
         }
 
@@ -157,6 +160,7 @@ namespace TodoLearn
                 db.Tasks.Update(t);
                 await db.SaveChangesAsync();
                 t.IsEditing = false;
+                SimpleLogger.Log($"Edited task '{t.Text}' (Id={t.Id})");
             }
         }
 
