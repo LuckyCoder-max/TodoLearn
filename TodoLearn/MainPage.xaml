@@ -23,30 +23,41 @@
                 <DataTemplate>
                     <Grid Padding="8" ColumnDefinitions="40, *">
 
-                        <Frame Grid.Column="0" 
-                               WidthRequest="24" 
-                               HeightRequest="24" 
-                               CornerRadius="12" 
-                               HasShadow="False" 
-                               VerticalOptions="Center" 
-                               HorizontalOptions="Center"
-                               Padding="0">
-                            <Frame.GestureRecognizers>
+                        <Border Grid.Column="0" 
+                            WidthRequest="24" 
+                            HeightRequest="24" 
+                            VerticalOptions="Center" 
+                            HorizontalOptions="Center"
+                            Padding="0"
+                            StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+
+                            <Border.Shadow>
+                                <Shadow Brush="Black"
+                                    Offset="0,2"
+                                    Radius="5"
+                                    Opacity="0.3" />    
+                            </Border.Shadow>
+
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnPriorityTapped" NumberOfTapsRequired="1" />
                                 <PointerGestureRecognizer PointerEntered="OnPriorityPointerEntered" PointerExited="OnPriorityPointerExited" />
-                            </Frame.GestureRecognizers>
-                            <Frame.Triggers>
-                                <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="Low">
+                            </Border.GestureRecognizers>
+
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding Priority}" Value="Low">
                                     <Setter Property="BackgroundColor" Value="{StaticResource PriorityLowColor}" />
                                 </DataTrigger>
-                                <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="Medium">
+                                <DataTrigger TargetType="Border" Binding="{Binding Priority}" Value="Medium">
                                     <Setter Property="BackgroundColor" Value="{StaticResource PriorityMediumColor}" />
                                 </DataTrigger>
-                                <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="High">
+                                <DataTrigger TargetType="Border" Binding="{Binding Priority}" Value="High">
                                     <Setter Property="BackgroundColor" Value="{StaticResource PriorityHighColor}" />
                                 </DataTrigger>
-                            </Frame.Triggers>
-                        </Frame>
+                            </Border.Triggers>
+                        </Border>
 
                         <StackLayout Grid.Column="1" Orientation="Vertical" Spacing="6">
                             <Grid ColumnDefinitions="*, Auto, Auto">
