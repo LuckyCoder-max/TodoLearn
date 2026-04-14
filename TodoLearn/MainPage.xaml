@@ -126,4 +126,5 @@
                 Clicked="OnClearCompletedClicked" 
                 HorizontalOptions="End" />
     </Grid>
+
 </ContentPage>

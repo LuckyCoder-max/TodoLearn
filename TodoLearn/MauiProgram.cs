@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TodoLearn;
 using ToDoListApp;
+using System.IO;
 
 namespace ToDoListApp
 {
@@ -17,9 +20,22 @@ namespace ToDoListApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "tasks.db");
+            builder.Services.AddDbContextFactory<AppDbContext>(options =>
+                options.UseSqlite($"Data Source={dbPath}"));
+
             builder.Logging.AddDebug();
 
-            return builder.Build();
+            var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
+                using var db = dbFactory.CreateDbContext();
+                db.Database.EnsureCreated();
+            }
+
+            return app;
         }
     }
 }

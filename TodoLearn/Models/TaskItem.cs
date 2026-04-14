@@ -12,6 +12,7 @@ namespace TodoLearn.Models
 
     public class TaskItem : INotifyPropertyChanged
     {
+        public int Id { get; set; }
         public TaskItem()
         {
             CreatedAt = DateTime.Now;
@@ -31,7 +32,7 @@ namespace TodoLearn.Models
             }
         }
 
-        public DateTime CreatedAt { get; }
+        public DateTime CreatedAt { get; set; }
 
         private DateTime _dueAt;
         public DateTime DueAt
