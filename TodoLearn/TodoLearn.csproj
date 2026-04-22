@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst;net10.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
 
@@ -41,8 +42,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-        <!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" />
+		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
@@ -63,7 +65,7 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.50" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.51" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
 	</ItemGroup>
 
@@ -71,6 +73,12 @@
 	  <Folder Include="Behaviors\" />
 	  <Folder Include="Controls\" />
 	  <Folder Include="Logging\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Views\LoginPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>
