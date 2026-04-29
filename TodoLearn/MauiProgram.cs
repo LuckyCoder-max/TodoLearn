@@ -24,6 +24,14 @@ namespace ToDoListApp
             builder.Services.AddDbContextFactory<AppDbContext>(options =>
                 options.UseSqlite($"Data Source={dbPath}"));
 
+            builder.Services.AddSingleton<AppShell>();
+            builder.Services.AddSingleton<App>();
+            builder.Services.AddTransient<MainPage>();
+            builder.Services.AddTransient<AllTasksPage>();
+            builder.Services.AddTransient<ImportantPage>();
+            builder.Services.AddTransient<PlannedPage>();
+            builder.Services.AddTransient<CompletedPage>();
+
             builder.Logging.AddDebug();
 
             var app = builder.Build();
@@ -36,6 +44,7 @@ namespace ToDoListApp
             }
 
             return app;
+
         }
     }
 }

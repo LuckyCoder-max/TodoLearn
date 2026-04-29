@@ -9,21 +9,4 @@
     <Shell.FlyoutHeader>
         <Label Text="MY TASKS" Margin="20" FontSize="20" FontAttributes="Bold" />
     </Shell.FlyoutHeader>
-
-    <FlyoutItem Title="My Day">
-        <ShellContent ContentTemplate="{DataTemplate local:MainPage}" Route="MyDay" />
-    </FlyoutItem>
-
-    <FlyoutItem Title="Important">
-        <ShellContent ContentTemplate="{DataTemplate local:ImportantPage}" Route="Important" />
-    </FlyoutItem>
-
-    <FlyoutItem Title="Planned">
-        <ShellContent ContentTemplate="{DataTemplate local:PlannedPage}" Route="Planned" />
-    </FlyoutItem>
-
-    <FlyoutItem Title="All Tasks">
-        <ShellContent ContentTemplate="{DataTemplate local:AllTasksPage}" Route="AllTasks" />
-    </FlyoutItem>
-
 </Shell>
