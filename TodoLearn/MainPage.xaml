@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TodoLearn.MainPage"
-             Title="{Binding Title}">
+             Title="My Day">
 
     <Grid Padding="16" RowDefinitions="Auto, *, Auto" RowSpacing="10">
 
@@ -15,38 +15,36 @@
                     Clicked="OnAddTaskClicked" />
         </Grid>
 
-        <CollectionView Grid.Row="1" 
-                        x:Name="TasksCollectionView" 
-                        ItemsSource="{Binding DisplayTasks}" 
-                        SelectionMode="None" 
+        <CollectionView Grid.Row="1"
+                        x:Name="TasksCollectionView"
+                        ItemsSource="{Binding DisplayTasks}"
+                        SelectionMode="None"
                         VerticalOptions="Fill">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Padding="8" ColumnDefinitions="40, *">
+                    <Grid Padding="8" ColumnDefinitions="36, 40, *">
+                        <CheckBox Grid.Column="0"
+                                  IsChecked="{Binding IsCompleted, Mode=TwoWay}"
+                                  CheckedChanged="OnTaskCheckedChanged"
+                                  VerticalOptions="Center" />
 
-                        <Border Grid.Column="0" 
-                            WidthRequest="24" 
-                            HeightRequest="24" 
-                            VerticalOptions="Center" 
+                        <Border Grid.Column="1"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            VerticalOptions="Center"
                             HorizontalOptions="Center"
                             Padding="0"
                             StrokeThickness="0">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="12" />
                             </Border.StrokeShape>
-
                             <Border.Shadow>
-                                <Shadow Brush="Black"
-                                    Offset="0,2"
-                                    Radius="5"
-                                    Opacity="0.3" />    
+                                <Shadow Brush="Black" Offset="0,2" Radius="5" Opacity="0.3" />
                             </Border.Shadow>
-
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnPriorityTapped" NumberOfTapsRequired="1" />
                                 <PointerGestureRecognizer PointerEntered="OnPriorityPointerEntered" PointerExited="OnPriorityPointerExited" />
                             </Border.GestureRecognizers>
-
                             <Border.Triggers>
                                 <DataTrigger TargetType="Border" Binding="{Binding Priority}" Value="Low">
                                     <Setter Property="BackgroundColor" Value="{StaticResource PriorityLowColor}" />
@@ -60,14 +58,21 @@
                             </Border.Triggers>
                         </Border>
 
-                        <Grid Grid.Column="1" RowDefinitions="Auto, Auto" RowSpacing="6">
+                        <Grid Grid.Column="2" RowDefinitions="Auto, Auto" RowSpacing="6">
                             <Grid ColumnDefinitions="*, Auto, Auto">
-                                <Label Grid.Column="0" 
-                                       Text="{Binding Text}" 
+
+                                <Label Grid.Column="0"
+                                       Text="{Binding Text}"
                                        VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsCompleted}" Value="True">
+                                            <Setter Property="TextDecorations" Value="Strikethrough" />
+                                            <Setter Property="TextColor" Value="Gray" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
                                     <Label.GestureRecognizers>
-                                        <TapGestureRecognizer NumberOfTapsRequired="2" 
-                                                               Tapped="OnTaskDoubleTapped" 
+                                        <TapGestureRecognizer NumberOfTapsRequired="2"
+                                                               Tapped="OnTaskDoubleTapped"
                                                                CommandParameter="{Binding .}" />
                                     </Label.GestureRecognizers>
                                 </Label>
@@ -77,16 +82,16 @@
                                     <Label Grid.Row="1" Text="{Binding DueAt, StringFormat='Due by: {0:MMM d, yyyy HH:mm}'}" FontSize="11" />
                                 </Grid>
 
-                                <Button Grid.Column="2" 
-                                        Text="Delete" 
-                                        Clicked="OnDeleteClicked" 
+                                <Button Grid.Column="2"
+                                        Text="Delete"
+                                        Clicked="OnDeleteClicked"
                                         CommandParameter="{Binding .}" />
                             </Grid>
 
                             <Grid Grid.Row="1"
-                                  IsVisible="{Binding IsEditing}" 
-                                  RowDefinitions="Auto, Auto, Auto" 
-                                  RowSpacing="10" 
+                                  IsVisible="{Binding IsEditing}"
+                                  RowDefinitions="Auto, Auto, Auto"
+                                  RowSpacing="10"
                                   Padding="0,10,0,0">
                                 <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, Auto, Auto" ColumnSpacing="8">
                                     <Label Grid.Column="0" Text="Priority:" VerticalOptions="Center" />
@@ -96,16 +101,13 @@
                                 </Grid>
 
                                 <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, Auto" ColumnSpacing="8">
-                                    <Label Grid.Column="0" 
-                                           Text="Due:" 
-                                           VerticalOptions="Center" 
-                                           WidthRequest="40" />
-                                    <DatePicker Grid.Column="1" 
-                                        Date="{Binding DueDate, Mode=TwoWay}" 
+                                    <Label Grid.Column="0" Text="Due:" VerticalOptions="Center" WidthRequest="40" />
+                                    <DatePicker Grid.Column="1"
+                                        Date="{Binding DueDate, Mode=TwoWay}"
                                         Format="dd.MM.yyyy"
                                         HorizontalOptions="Start" />
-                                    <TimePicker Grid.Column="2" 
-                                        Time="{Binding DueTime, Mode=TwoWay}" 
+                                    <TimePicker Grid.Column="2"
+                                        Time="{Binding DueTime, Mode=TwoWay}"
                                         Format="HH:mm"
                                         HorizontalOptions="Start" />
                                 </Grid>
@@ -121,9 +123,9 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Button Grid.Row="2" 
-                Text="Clear" 
-                Clicked="OnClearCompletedClicked" 
+        <Button Grid.Row="2"
+                Text="Clear Completed"
+                Clicked="OnClearCompletedClicked"
                 HorizontalOptions="End" />
     </Grid>
 
