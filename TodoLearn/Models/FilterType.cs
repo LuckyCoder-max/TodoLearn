@@ -7,6 +7,7 @@ namespace TodoLearn.Models
         MyDay,
         Important,
         Planned,
-        All
+        All,
+        Completed
     }
 }
