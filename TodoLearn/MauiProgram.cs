@@ -1,11 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using TodoLearn;
-using ToDoListApp;
-using System.IO;
+using TodoLearn.ViewModels;
 
-namespace ToDoListApp
+namespace TodoLearn
 {
     public static class MauiProgram
     {
@@ -24,13 +21,11 @@ namespace ToDoListApp
             builder.Services.AddDbContextFactory<AppDbContext>(options =>
                 options.UseSqlite($"Data Source={dbPath}"));
 
+            // Factory creates a correctly-filtered ViewModel per tab.
+            // AppShell receives it via constructor injection.
+            builder.Services.AddSingleton<TaskListViewModelFactory>();
             builder.Services.AddSingleton<AppShell>();
             builder.Services.AddSingleton<App>();
-            builder.Services.AddTransient<MainPage>();
-            builder.Services.AddTransient<AllTasksPage>();
-            builder.Services.AddTransient<ImportantPage>();
-            builder.Services.AddTransient<PlannedPage>();
-            builder.Services.AddTransient<CompletedPage>();
 
             builder.Logging.AddDebug();
 
@@ -44,7 +39,6 @@ namespace ToDoListApp
             }
 
             return app;
-
         }
     }
 }

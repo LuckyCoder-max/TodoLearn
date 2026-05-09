@@ -1,36 +1,31 @@
-﻿namespace TodoLearn
+using TodoLearn.Models;
+using TodoLearn.ViewModels;
+
+namespace TodoLearn
 {
     public partial class AppShell : Shell
     {
-        public AppShell(IServiceProvider services)
+        public AppShell(TaskListViewModelFactory vmFactory)
         {
             InitializeComponent();
 
-            Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
-            Routing.RegisterRoute(nameof(AllTasksPage), typeof(AllTasksPage));
-            Routing.RegisterRoute(nameof(ImportantPage), typeof(ImportantPage));
-            Routing.RegisterRoute(nameof(PlannedPage), typeof(PlannedPage));
-            Routing.RegisterRoute(nameof(CompletedPage), typeof(CompletedPage));
-
-            CurrentItem = CreateFlyoutItem(services.GetRequiredService<MainPage>, "My Day", "myday");
-            Items.Add(CreateFlyoutItem(services.GetRequiredService<ImportantPage>, "Important", "important"));
-            Items.Add(CreateFlyoutItem(services.GetRequiredService<PlannedPage>, "Planned", "planned"));
-            Items.Add(CreateFlyoutItem(services.GetRequiredService<AllTasksPage>, "All Tasks", "alltasks"));
-            Items.Add(CreateFlyoutItem(services.GetRequiredService<CompletedPage>, "Completed", "completed"));
+            CurrentItem = MakeFlyoutItem(vmFactory, "My Day",     "myday",     FilterType.MyDay);
+            Items.Add(   MakeFlyoutItem(vmFactory, "Important",   "important", FilterType.Important));
+            Items.Add(   MakeFlyoutItem(vmFactory, "Planned",     "planned",   FilterType.Planned));
+            Items.Add(   MakeFlyoutItem(vmFactory, "All Tasks",   "alltasks",  FilterType.All));
+            Items.Add(   MakeFlyoutItem(vmFactory, "Completed",   "completed", FilterType.Completed));
         }
 
-        private static FlyoutItem CreateFlyoutItem<TPage>(Func<TPage> factory, string title, string route)
-            where TPage : Page
+        private static FlyoutItem MakeFlyoutItem(
+            TaskListViewModelFactory vmFactory,
+            string title, string route, FilterType filter)
         {
+            var vm   = vmFactory.Create(filter);
+            var page = new TaskListPage(vm) { Title = title };
+
             var item = new FlyoutItem { Title = title };
-            var content = new ShellContent
-            {
-                Route = route,
-                Content = factory()  
-            };
-            item.Items.Add(content);
+            item.Items.Add(new ShellContent { Route = route, Content = page });
             return item;
         }
     }
-
 }

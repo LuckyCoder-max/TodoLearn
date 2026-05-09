@@ -1,4 +1,4 @@
-﻿namespace TodoLearn
+namespace TodoLearn
 {
     public partial class App : Application
     {
@@ -8,5 +8,4 @@
             MainPage = shell;
         }
     }
-
 }
