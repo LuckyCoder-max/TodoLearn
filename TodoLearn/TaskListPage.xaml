@@ -4,22 +4,36 @@
              xmlns:vm="clr-namespace:TodoLearn.ViewModels"
              x:Class="TodoLearn.TaskListPage">
 
-    <Grid Padding="16" RowDefinitions="Auto, *, Auto" RowSpacing="10">
+    <Grid Padding="16" RowDefinitions="Auto, Auto, *, Auto" RowSpacing="10">
 
         <Grid Grid.Row="0"
-              ColumnDefinitions="*, Auto"
-              ColumnSpacing="8"
-              IsVisible="{Binding CanAddTasks}">
+              ColumnDefinitions="*, Auto, Auto"
+              ColumnSpacing="8">
             <Entry Placeholder="Add a task..."
                    Text="{Binding NewTaskText, Mode=TwoWay}"
                    Grid.Column="0"
+                   IsVisible="{Binding CanAddTasks}"
                    ReturnCommand="{Binding AddTaskCommand}" />
             <Button Text="Add"
                     Grid.Column="1"
+                    IsVisible="{Binding CanAddTasks}"
                     Command="{Binding AddTaskCommand}" />
+            <Button x:Name="SortButton"
+                    Grid.Column="2"
+                    Text="{Binding SortLabel}"
+                    FontSize="13"
+                    Padding="10,0"
+                    Clicked="OnSortButtonClicked" />
         </Grid>
 
-        <CollectionView Grid.Row="1"
+        <Label Grid.Row="1"
+               Text="{Binding SortDescription}"
+               FontSize="12"
+               TextColor="Gray"
+               IsVisible="{Binding HasCustomSort}"
+               Margin="2,0,0,0" />
+
+        <CollectionView Grid.Row="2"
                         ItemsSource="{Binding DisplayTasks}"
                         SelectionMode="None"
                         VerticalOptions="Fill">
@@ -34,7 +48,6 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Grid Padding="8" ColumnDefinitions="36, 40, *">
-
 
                         <CheckBox Grid.Column="0"
                                   IsChecked="{Binding IsCompleted, Mode=TwoWay}"
@@ -164,7 +177,7 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Button Grid.Row="2"
+        <Button Grid.Row="3"
                 Text="Clear Completed"
                 Command="{Binding ClearCompletedCommand}"
                 HorizontalOptions="End" />
