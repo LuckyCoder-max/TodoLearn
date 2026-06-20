@@ -14,10 +14,9 @@ namespace TodoLearn.Services
                 var line = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}";
                 File.AppendAllText(LogFilePath, line + Environment.NewLine);
             }
-            catch
+            catch (Exception ex)
             {
-                Exception ex = new Exception(message);
-                string errorLine = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Failed to log message: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"Failed to log message '{message}': {ex.Message}");
             }
         }
     }
