@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TodoLearn;
-using ToDoListApp;
-using System.IO;
+using TodoLearn.Services;
+using TodoLearn.Views;
 
 namespace ToDoListApp
 {
@@ -12,6 +11,7 @@ namespace ToDoListApp
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+
             builder
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
@@ -20,22 +20,31 @@ namespace ToDoListApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "tasks.db");
-            builder.Services.AddDbContextFactory<AppDbContext>(options =>
-                options.UseSqlite($"Data Source={dbPath}"));
-
+            RegisterServices(builder.Services);
             builder.Logging.AddDebug();
 
             var app = builder.Build();
-
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
-                using var db = dbFactory.CreateDbContext();
-                db.Database.EnsureCreated();
-            }
+            DatabaseInitializer.Initialize(app.Services);
 
             return app;
+        }
+
+        private static void RegisterServices(IServiceCollection services)
+        {
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "tasks.db");
+
+            services.AddDbContextFactory<AppDbContext>(options =>
+                options.UseSqlite($"Data Source={dbPath}"));
+
+            services.AddSingleton<UserRepository>();
+            services.AddSingleton<InactivityService>();
+
+            services.AddTransient<LoginPage>();
+            services.AddTransient<MainPage>();
+            services.AddTransient<ImportantPage>();
+            services.AddTransient<PlannedPage>();
+            services.AddTransient<AllTasksPage>();
+            services.AddTransient<AppShell>();
         }
     }
 }
