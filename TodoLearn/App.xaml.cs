@@ -4,23 +4,21 @@ namespace TodoLearn
 {
     public partial class App : Application
     {
-        private readonly InactivityService? _inactivityService;
+        private readonly InactivityService _inactivityService;
+        private readonly IServiceProvider _serviceProvider;
 
-        public App()
+        public App(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _inactivityService = IPlatformApplication.Current?.Services.GetService<InactivityService>();
+            _serviceProvider = serviceProvider;
+            _inactivityService = serviceProvider.GetRequiredService<InactivityService>();
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            var loginPage = new LoginPage();
+            var loginPage = _serviceProvider.GetRequiredService<LoginPage>();
 
-            if (_inactivityService != null)
-            {
-                _inactivityService.OnTimeout += OnUserInactiveTimeout;
-                _inactivityService.Start();
-            }
+            _inactivityService.OnTimeout += OnUserInactiveTimeout;
 
             return new Window(loginPage);
         }
@@ -29,9 +27,21 @@ namespace TodoLearn
         {
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                await Application.Current!.MainPage!.DisplayAlert("Session Expired", "You have been inactive for too long. Please log in again.", "OK");
-                _inactivityService?.Stop();
-                Application.Current.MainPage = new LoginPage();
+                var window = Windows.FirstOrDefault();
+                var currentPage = window?.Page;
+
+                if (currentPage != null)
+                {
+                    await currentPage.DisplayAlertAsync("Session Expired", "You have been inactive for too long. Please log in again.", "OK");
+                }
+
+                _inactivityService.Stop();
+
+                if (window == null)
+                    return;
+
+                var loginPage = _serviceProvider.GetRequiredService<LoginPage>();
+                window.Page = loginPage;
             });
         }
     }
