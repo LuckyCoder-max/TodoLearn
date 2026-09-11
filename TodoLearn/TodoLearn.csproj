@@ -38,6 +38,7 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+		<UserSecretsId>8316a865-1c7e-4fad-aefd-7d349992a624</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -59,10 +60,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.71" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.9" />
+	    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+	    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
+	    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.12">
+	      <PrivateAssets>all</PrivateAssets>
+	      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	    </PackageReference>
+	    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.101" />
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.13" />
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3.android" Version="2.1.13" />
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3.ios" Version="2.1.13" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -75,6 +83,5 @@
 		<MauiXaml Update="PlannedPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-	</ItemGroup>
-		
+	</ItemGroup>		
 </Project>
