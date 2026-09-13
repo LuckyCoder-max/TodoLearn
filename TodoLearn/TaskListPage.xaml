@@ -4,7 +4,7 @@
              xmlns:vm="clr-namespace:TodoLearn.ViewModels"
              x:Class="TodoLearn.TaskListPage">
 
-    <Grid Padding="16" RowDefinitions="Auto, Auto, *, Auto" RowSpacing="10">
+    <Grid Padding="16" RowDefinitions="Auto, Auto, Auto, *, Auto" RowSpacing="10">
 
         <Grid Grid.Row="0"
               ColumnDefinitions="*, Auto, Auto"
@@ -26,19 +26,33 @@
                     Clicked="OnSortButtonClicked" />
         </Grid>
 
-        <Label Grid.Row="1"
+        <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="6">
+            <Entry Grid.Column="0"
+                   Placeholder="Search tasks..."
+                   Text="{Binding SearchText, Mode=TwoWay}"
+                   ClearButtonVisibility="WhileEditing"
+                   ReturnType="Search" />
+            <Button Grid.Column="1" 
+                    Text="✕"
+                    WidthRequest="36"
+                    IsVisible="{Binding IsSearchActive}"
+                    Command="{Binding ClearSearchCommand}"
+                    ToolTipProperties.Text="Clear search" />
+        </Grid>
+
+        <Label Grid.Row="2"
                Text="{Binding SortDescription}"
                FontSize="12"
                TextColor="Gray"
                IsVisible="{Binding HasCustomSort}"
                Margin="2,0,0,0" />
 
-        <CollectionView Grid.Row="2"
+        <CollectionView Grid.Row="3"
                         ItemsSource="{Binding DisplayTasks}"
                         SelectionMode="None"
                         VerticalOptions="Fill">
 
-            <CollectionView.EmptyView>
+            <CollectionView.EmptyView> 
                 <Label Text="No tasks."
                        HorizontalOptions="Center"
                        VerticalOptions="Center"
@@ -47,23 +61,22 @@
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Padding="8" ColumnDefinitions="36, 40, *">
+                    <Grid Padding="8" ColumnDefinitions="36, 40, *, Auto, Auto" ColumnSpacing="8">
 
                         <CheckBox Grid.Column="0"
-                                  IsChecked="{Binding IsCompleted, Mode=TwoWay}"
-                                  VerticalOptions="Center">
+                      IsChecked="{Binding IsCompleted, Mode=TwoWay}"
+                      VerticalOptions="Center">
                             <CheckBox.GestureRecognizers>
                                 <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
-                                                      Path=BindingContext.ToggleCompleteCommand}"
-                                    CommandParameter="{Binding .}" />
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleCompleteCommand}"
+                        CommandParameter="{Binding .}" />
                             </CheckBox.GestureRecognizers>
                         </CheckBox>
 
                         <Border Grid.Column="1"
-                                WidthRequest="24" HeightRequest="24"
-                                VerticalOptions="Center" HorizontalOptions="Center"
-                                Padding="0" StrokeThickness="0">
+                    WidthRequest="24" HeightRequest="24"
+                    VerticalOptions="Center" HorizontalOptions="Center"
+                    Padding="0" StrokeThickness="0">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="12" />
                             </Border.StrokeShape>
@@ -83,101 +96,83 @@
                             </Border.Triggers>
                         </Border>
 
-                        <Grid Grid.Column="2" RowDefinitions="Auto, Auto" RowSpacing="6">
+                        <Grid Grid.Column="2" RowDefinitions="Auto, Auto, Auto" RowSpacing="2" VerticalOptions="Center">
 
-                            <Grid ColumnDefinitions="*, Auto, Auto">
+                            <Label Grid.Row="0"
+                       Text="{Binding Text}"
+                       VerticalOptions="Center"
+                       FontAttributes="Bold">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsCompleted}" Value="True">
+                                        <Setter Property="TextDecorations" Value="Strikethrough" />
+                                        <Setter Property="TextColor" Value="Gray" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer
+                            NumberOfTapsRequired="2"
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleEditCommand}"
+                            CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
 
-                                <Label Grid.Column="0"
-                                       Text="{Binding Text}"
-                                       VerticalOptions="Center">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding IsCompleted}" Value="True">
-                                            <Setter Property="TextDecorations" Value="Strikethrough" />
-                                            <Setter Property="TextColor" Value="Gray" />
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer
-                                            NumberOfTapsRequired="2"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
-                                                              Path=BindingContext.ToggleEditCommand}"
-                                            CommandParameter="{Binding .}" />
-                                    </Label.GestureRecognizers>
-                                </Label>
+                            <Label Grid.Row="1"
+                       Text="{Binding Notes}"
+                       FontSize="12"
+                       TextColor="Gray"
+                       FontAttributes="Italic"
+                       MaxLines="2"
+                       LineBreakMode="TailTruncation"
+                       IsVisible="{Binding HasNotes}" />
 
-                                <Grid Grid.Column="1" RowDefinitions="Auto, Auto" VerticalOptions="Center" Margin="8,0">
-                                    <Label Grid.Row="0"
-                                           Text="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
-                                           FontSize="11" />
-                                    <Label Grid.Row="1"
-                                           Text="{Binding DueAt, StringFormat='Due: {0:dd.MM.yyyy HH:mm}'}"
-                                           FontSize="11" />
-                                </Grid>
-
-                                <Button Grid.Column="2"
-                                        Text="✕"
-                                        WidthRequest="36"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
-                                                          Path=BindingContext.DeleteTaskCommand}"
-                                        CommandParameter="{Binding .}" />
-                            </Grid>
-
-                            <Grid Grid.Row="1"
-                                  IsVisible="{Binding IsEditing}"
-                                  RowDefinitions="Auto, Auto, Auto"
-                                  RowSpacing="10"
-                                  Padding="0,10,0,0">
-
+                            <Grid Grid.Row="2"
+                      IsVisible="{Binding IsEditing}"
+                      RowDefinitions="Auto, Auto, Auto, Auto"
+                      RowSpacing="10"
+                      Padding="0,10,0,0">
                                 <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, Auto, Auto" ColumnSpacing="8">
                                     <Label Grid.Column="0" Text="Priority:" VerticalOptions="Center" />
-                                    <Button Grid.Column="1" Text="Low"
-                                            BackgroundColor="{StaticResource PriorityLowColor}"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
-                                                              Path=BindingContext.SetPriorityCommand}"
-                                            CommandParameter="{Binding Id, StringFormat='{0}:0'}" />
-                                    <Button Grid.Column="2" Text="Medium"
-                                            BackgroundColor="{StaticResource PriorityMediumColor}"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
-                                                              Path=BindingContext.SetPriorityCommand}"
-                                            CommandParameter="{Binding Id, StringFormat='{0}:1'}" />
-                                    <Button Grid.Column="3" Text="High"
-                                            BackgroundColor="{StaticResource PriorityHighColor}"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
-                                                              Path=BindingContext.SetPriorityCommand}"
-                                            CommandParameter="{Binding Id, StringFormat='{0}:2'}" />
+                                    <Button Grid.Column="1" Text="Low" BackgroundColor="{StaticResource PriorityLowColor}" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SetPriorityCommand}" CommandParameter="{Binding Id, StringFormat='{0}:0'}" />
+                                    <Button Grid.Column="2" Text="Medium" BackgroundColor="{StaticResource PriorityMediumColor}" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SetPriorityCommand}" CommandParameter="{Binding Id, StringFormat='{0}:1'}" />
+                                    <Button Grid.Column="3" Text="High" BackgroundColor="{StaticResource PriorityHighColor}" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SetPriorityCommand}" CommandParameter="{Binding Id, StringFormat='{0}:2'}" />
                                 </Grid>
-
                                 <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, Auto" ColumnSpacing="8">
                                     <Label Grid.Column="0" Text="Due:" VerticalOptions="Center" WidthRequest="50" />
-                                    <DatePicker Grid.Column="1"
-                                                Date="{Binding DueDate, Mode=TwoWay}"
-                                                Format="dd.MM.yyyy"
-                                                HorizontalOptions="Start" />
-                                    <TimePicker Grid.Column="2"
-                                                Time="{Binding DueTime, Mode=TwoWay}"
-                                                Format="HH:mm"
-                                                HorizontalOptions="Start" />
+                                    <DatePicker Grid.Column="1" Date="{Binding DueDate, Mode=TwoWay}" Format="dd.MM.yyyy" HorizontalOptions="Start" />
+                                    <TimePicker Grid.Column="2" Time="{Binding DueTime, Mode=TwoWay}" Format="HH:mm" HorizontalOptions="Start" />
                                 </Grid>
-
-                                <Grid Grid.Row="2" ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8">
-                                    <Button Grid.Column="1" Text="Save"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
-                                                              Path=BindingContext.SaveTaskCommand}"
-                                            CommandParameter="{Binding .}" />
-                                    <Button Grid.Column="2" Text="Cancel"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
-                                                              Path=BindingContext.CancelEditCommand}"
-                                            CommandParameter="{Binding .}" />
+                                <Grid Grid.Row="2" ColumnDefinitions="Auto, *" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Text="Notes:" VerticalOptions="Start" Margin="0,8,0,0" />
+                                    <Editor Grid.Column="1" Text="{Binding Notes, Mode=TwoWay}" Placeholder="Add a note or description..." AutoSize="TextChanges" MinimumHeightRequest="60" MaxLength="1000" />
+                                </Grid>
+                                <Grid Grid.Row="3" ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8">
+                                    <Button Grid.Column="1" Text="Save" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SaveTaskCommand}" CommandParameter="{Binding .}" />
+                                    <Button Grid.Column="2" Text="Cancel" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CancelEditCommand}" CommandParameter="{Binding .}" />
                                 </Grid>
                             </Grid>
                         </Grid>
 
+                        <Grid Grid.Column="3" RowDefinitions="Auto, Auto" VerticalOptions="Center" Margin="8,0">
+                            <Label Grid.Row="0"
+                       Text="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
+                       FontSize="11" />
+                            <Label Grid.Row="1"
+                       Text="{Binding DueAt, StringFormat='Due: {0:dd.MM.yyyy HH:mm}'}"
+                       FontSize="11" />
+                        </Grid>
+
+                        <Button Grid.Column="4"
+                    Text="✕"
+                    WidthRequest="36"
+                    VerticalOptions="Center"
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteTaskCommand}"
+                    CommandParameter="{Binding .}" />
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Button Grid.Row="3"
+        <Button Grid.Row="4"
                 Text="Clear Completed"
                 Command="{Binding ClearCompletedCommand}"
                 HorizontalOptions="End" />

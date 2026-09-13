@@ -22,6 +22,19 @@ namespace TodoLearn.ViewModels
             set => SetProperty(ref _newTaskText, value);
         }
 
+        private string _searchText = string.Empty;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (SetProperty(ref _searchText, value))
+                    ApplyFilter();
+            }
+        }
+
+        public bool IsSearchActive => !string.IsNullOrWhiteSpace(_searchText);
+
         private bool _isBusy;
         public bool IsBusy
         {
@@ -40,6 +53,7 @@ namespace TodoLearn.ViewModels
         public ICommand ToggleCompleteCommand { get; }
         public ICommand SetPriorityCommand    { get; }
         public ICommand SortCommand           { get; }
+        public ICommand ClearSearchCommand    { get; }
 
         private SortType _currentSort = SortType.CreatedDesc;
         public SortType CurrentSort
@@ -85,7 +99,7 @@ namespace TodoLearn.ViewModels
 
         public bool HasCustomSort => _currentSort != SortType.CreatedDesc;
 
-        private readonly Dictionary<TaskItem, (string? Text, DateTime DueAt, TaskPriority Priority, bool IsCompleted)>
+        private readonly Dictionary<TaskItem, (string? Text, DateTime DueAt, TaskPriority Priority, bool IsCompleted, string? Notes)>
             _editBackups = new();
 
         public TaskListViewModel(IDbContextFactory<AppDbContext> dbFactory, FilterType filter)
@@ -102,6 +116,7 @@ namespace TodoLearn.ViewModels
             ToggleCompleteCommand = new RelayCommand(p => ToggleCompleteAsync(p as TaskItem));
             SetPriorityCommand    = new RelayCommand(p => SetPriority(p));
             SortCommand           = new RelayCommand(p => SetSort(p));
+            ClearSearchCommand    = new RelayCommand(_ => SearchText = string.Empty);
         }
 
         public async Task LoadAsync()
@@ -188,7 +203,7 @@ namespace TodoLearn.ViewModels
         {
             if (task is null) return;
             if (!_editBackups.ContainsKey(task))
-                _editBackups.TryAdd(task, (task.Text, task.DueAt, task.Priority, task.IsCompleted));
+                _editBackups.TryAdd(task, (task.Text, task.DueAt, task.Priority, task.IsCompleted, task.Notes));
             task.IsEditing = !task.IsEditing;
         }
 
@@ -214,6 +229,7 @@ namespace TodoLearn.ViewModels
                 task.DueAt = backup.DueAt;
                 task.Priority = backup.Priority;
                 task.IsCompleted = backup.IsCompleted;
+                task.Notes = backup.Notes;
                 _editBackups.Remove(task);
             }
             task.IsEditing = false;
@@ -247,19 +263,40 @@ namespace TodoLearn.ViewModels
                 CurrentSort = sort;
         }
 
+        private void ApplyFilter()
+        {
+            OnPropertyChanged(nameof(IsSearchActive));
+            ApplySort();
+        }
+
+        private IEnumerable<TaskItem> FilteredTasks()
+        {
+            var tasks = _allTasks.Where(MatchesFilter);
+            if (!string.IsNullOrWhiteSpace(_searchText))
+            {
+                var q = _searchText.Trim();
+                tasks = tasks.Where(t =>
+                    (t.Text?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (t.Notes?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false));
+            }
+            return tasks;
+        }
+
         private void ApplySort()
         {
+            var filtered = FilteredTasks();
+
             var sorted = _currentSort switch
             {
-                CreatedAsc   => _allTasks.Where(MatchesFilter).OrderBy(t => t.CreatedAt),
-                CreatedDesc  => _allTasks.Where(MatchesFilter).OrderByDescending(t => t.CreatedAt),
-                DueAsc       => _allTasks.Where(MatchesFilter).OrderBy(t => t.DueAt),
-                DueDesc      => _allTasks.Where(MatchesFilter).OrderByDescending(t => t.DueAt),
-                NameAsc      => _allTasks.Where(MatchesFilter).OrderBy(t => t.Text),
-                NameDesc     => _allTasks.Where(MatchesFilter).OrderByDescending(t => t.Text),
-                PriorityAsc  => _allTasks.Where(MatchesFilter).OrderBy(t => (int)t.Priority),
-                PriorityDesc => _allTasks.Where(MatchesFilter).OrderByDescending(t => (int)t.Priority),
-                _            => _allTasks.Where(MatchesFilter).OrderBy(t => t.CreatedAt)
+                CreatedAsc   => filtered.OrderBy(t => t.CreatedAt),
+                CreatedDesc  => filtered.OrderByDescending(t => t.CreatedAt),
+                DueAsc       => filtered.OrderBy(t => t.DueAt),
+                DueDesc      => filtered.OrderByDescending(t => t.DueAt),
+                NameAsc      => filtered.OrderBy(t => t.Text),
+                NameDesc     => filtered.OrderByDescending(t => t.Text),
+                PriorityAsc  => filtered.OrderBy(t => (int)t.Priority),
+                PriorityDesc => filtered.OrderByDescending(t => (int)t.Priority),
+                _            => filtered.OrderBy(t => t.CreatedAt)
             };
 
             DisplayTasks.Clear();
