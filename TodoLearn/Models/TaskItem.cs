@@ -115,6 +115,21 @@ namespace TodoLearn.Models
             }
         }
 
+        private string? _notes;
+        public string? Notes
+        {
+            get => _notes;
+            set
+            {
+                if (_notes == value) return;
+                _notes = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Notes)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasNotes)));
+            }
+        }
+
+        public bool HasNotes => !string.IsNullOrWhiteSpace(_notes);
+
         public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

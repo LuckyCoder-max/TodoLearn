@@ -21,8 +21,6 @@ namespace TodoLearn
             builder.Services.AddDbContextFactory<AppDbContext>(options =>
                 options.UseSqlite($"Data Source={dbPath}"));
 
-            // Factory creates a correctly-filtered ViewModel per tab.
-            // AppShell receives it via constructor injection.
             builder.Services.AddSingleton<TaskListViewModelFactory>();
             builder.Services.AddSingleton<AppShell>();
             builder.Services.AddSingleton<App>();
