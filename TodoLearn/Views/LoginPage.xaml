@@ -10,6 +10,23 @@
         <Entry x:Name="PasswordEntry" Placeholder="{x:Static strings:AppResources.PasswordPlaceholder}" IsPassword="True" />
         <Button x:Name="LoginButton" Text="{x:Static strings:AppResources.LoginButton}" Clicked="OnLoginClicked" />
         <Button x:Name="RegisterButton" Text="{x:Static strings:AppResources.RegisterButton}" Clicked="OnRegisterClicked" />
+        <Grid x:Name="GoogleSignInSeparator" ColumnDefinitions="*, Auto, *" ColumnSpacing="12" Margin="0,2" IsVisible="False">
+            <BoxView Grid.Column="0" HeightRequest="1" BackgroundColor="{DynamicResource Gray300}" VerticalOptions="Center" />
+            <Label Grid.Column="1" Text="{x:Static strings:AppResources.LoginMethodSeparator}" TextColor="{DynamicResource Gray500}" VerticalOptions="Center" />
+            <BoxView Grid.Column="2" HeightRequest="1" BackgroundColor="{DynamicResource Gray300}" VerticalOptions="Center" />
+        </Grid>
+        <Border x:Name="GoogleSignInButton" Padding="12" Stroke="{DynamicResource Gray300}" BackgroundColor="Transparent" IsVisible="False" IsEnabled="True">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="32, *" ColumnSpacing="8">
+                <Label Grid.Column="0" Text="G" FontSize="21" FontAttributes="Bold" TextColor="{DynamicResource GoogleBrandColor}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                <Label Grid.Column="1" Text="{x:Static strings:AppResources.ContinueWithGoogle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+            </Grid>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnGoogleSignInClicked" />
+            </Border.GestureRecognizers>
+        </Border>
         <Label x:Name="StatusLabel" TextColor="Red" IsVisible="False" />
     </VerticalStackLayout>
 </ContentPage>

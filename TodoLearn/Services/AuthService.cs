@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 using TodoLearn.Helpers;
 using TodoLearn.Models;
 using TodoLearn.Resources.Strings;
@@ -65,6 +66,48 @@ public sealed class AuthService
         }
 
         return new SignInResult(false, RegisterFailedAttempt(normalizedUsername));
+    }
+
+    public async Task<bool> AccountExistsAsync(string username)
+    {
+        await using var db = await _dbFactory.CreateDbContextAsync();
+        return await db.UserAccounts.AnyAsync(account => account.Username == username);
+    }
+
+    public async Task<string> GetOrCreateExternalAccountAsync(string provider, string subject, string email)
+    {
+        if (string.IsNullOrWhiteSpace(provider) || string.IsNullOrWhiteSpace(subject) || string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException();
+
+        await using var db = await _dbFactory.CreateDbContextAsync();
+        var externalLogin = await db.ExternalLogins
+            .Include(login => login.UserAccount)
+            .SingleOrDefaultAsync(login => login.Provider == provider && login.Subject == subject);
+        if (externalLogin is not null)
+            return externalLogin.UserAccount.Username;
+
+        var username = email.Trim();
+        if (username.Length > 50 || await db.UserAccounts.AnyAsync(account => account.Username == username))
+            username = $"{provider.ToLowerInvariant()}_{subject}";
+
+        var randomPassword = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+        var (passwordHash, passwordSalt) = PasswordHasher.Create(randomPassword);
+        var account = new UserAccount
+        {
+            Username = username,
+            PasswordHash = passwordHash,
+            PasswordSalt = passwordSalt
+        };
+
+        db.UserAccounts.Add(account);
+        account.ExternalLogins.Add(new ExternalLogin
+        {
+            Provider = provider,
+            Subject = subject,
+            UserAccount = account
+        });
+        await db.SaveChangesAsync();
+        return account.Username;
     }
 
     private TimeSpan? GetLockoutRemaining(string username)

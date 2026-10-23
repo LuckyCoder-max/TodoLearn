@@ -10,6 +10,14 @@
   <data name="PasswordPlaceholder" xml:space="preserve"><value>Пароль</value></data>
   <data name="LoginButton" xml:space="preserve"><value>Войти</value></data>
   <data name="RegisterButton" xml:space="preserve"><value>Зарегистрироваться</value></data>
+  <data name="ContinueWithGoogle" xml:space="preserve"><value>Продолжить с Google</value></data>
+  <data name="LoginMethodSeparator" xml:space="preserve"><value>или</value></data>
+  <data name="GoogleAuthFailed" xml:space="preserve"><value>Не удалось войти через Google. Попробуйте ещё раз.</value></data>
+  <data name="GoogleAuthTimeout" xml:space="preserve"><value>Время входа через Google истекло. Попробуйте ещё раз.</value></data>
+  <data name="GoogleAuthBrowserMessage" xml:space="preserve"><value>Код получен. Вернитесь в приложение, чтобы завершить вход.</value></data>
+  <data name="GoogleAuthCancelled" xml:space="preserve"><value>Вход отменён. Можно закрыть это окно.</value></data>
+  <data name="GoogleAuthInvalidResponse" xml:space="preserve"><value>Неверный ответ. Вернитесь в приложение и попробуйте ещё раз.</value></data>
+  <data name="GoogleClientSecretRequired" xml:space="preserve"><value>Google требует client_secret для этого клиента. Задайте переменную среды пользователя TODOLEARN_GOOGLE_CLIENT_SECRET со значением Client secret этого же клиента из Google Cloud Console и полностью перезапустите приложение.</value></data>
   <data name="InvalidCredentials" xml:space="preserve"><value>Неверный логин или пароль.</value></data>
   <data name="LoginLocked" xml:space="preserve"><value>Слишком много неудачных попыток. Попробуйте через {0} сек.</value></data>
   <data name="ApplicationWindowUnavailable" xml:space="preserve"><value>Окно приложения недоступно.</value></data>

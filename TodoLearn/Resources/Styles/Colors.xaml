@@ -45,6 +45,7 @@
     <Color x:Key="PriorityLowColor">#4CAF50</Color>
     <Color x:Key="PriorityMediumColor">#FFEB3B</Color>
     <Color x:Key="PriorityHighColor">#F44336</Color>
+    <Color x:Key="GoogleBrandColor">#4285F4</Color>
 
     <SolidColorBrush x:Key="PriorityLowBrush" Color="{StaticResource PriorityLowColor}" />
     <SolidColorBrush x:Key="PriorityMediumBrush" Color="{StaticResource PriorityMediumColor}" />

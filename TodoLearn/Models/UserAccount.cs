@@ -9,4 +9,6 @@ public sealed class UserAccount
     public string PasswordHash { get; set; } = string.Empty;
 
     public string PasswordSalt { get; set; } = string.Empty;
+
+    public ICollection<ExternalLogin> ExternalLogins { get; set; } = new List<ExternalLogin>();
 }

@@ -1,5 +1,6 @@
-using System;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Devices;
+using System;
 using TodoLearn.Resources.Strings;
 using TodoLearn.Services;
 
@@ -9,12 +10,20 @@ namespace TodoLearn.Views
     {
         private readonly InactivityService _inactivityService;
         private readonly AuthService _authService;
+        private readonly IGoogleSignInService _googleSignInService;
 
-        public LoginPage(AuthService authService, InactivityService inactivityService)
+        public LoginPage(
+            AuthService authService,
+            InactivityService inactivityService,
+            IGoogleSignInService googleSignInService)
         {
             InitializeComponent();
             _authService = authService ?? throw new ArgumentNullException(nameof(authService));
             _inactivityService = inactivityService ?? throw new ArgumentNullException(nameof(inactivityService));
+            _googleSignInService = googleSignInService ?? throw new ArgumentNullException(nameof(googleSignInService));
+            var isWindows = DeviceInfo.Platform == DevicePlatform.WinUI;
+            GoogleSignInSeparator.IsVisible = isWindows;
+            GoogleSignInButton.IsVisible = isWindows;
         }
 
         private async void OnLoginClicked(object? sender, EventArgs e)
@@ -22,6 +31,7 @@ namespace TodoLearn.Views
             StatusLabel.IsVisible = false;
 
             SetLoading(true);
+
             try
             {
                 var result = await _authService.SignInAsync(UsernameEntry.Text, PasswordEntry.Text);
@@ -40,16 +50,7 @@ namespace TodoLearn.Views
                     return;
                 }
 
-                var window = Application.Current?.Windows.FirstOrDefault();
-                if (window is null)
-                {
-                    ShowError(AppResources.ApplicationWindowUnavailable);
-                    return;
-                }
-
-                window.Page = new AppShell();
-                _inactivityService.Reset();
-                _inactivityService.Start();
+                OpenAuthenticatedApp();
             }
             catch
             {
@@ -59,6 +60,58 @@ namespace TodoLearn.Views
             {
                 SetLoading(false);
             }
+        }
+
+        private async void OnGoogleSignInClicked(object? sender, EventArgs e)
+        {
+            StatusLabel.IsVisible = false;
+            SetLoading(true);
+
+            try
+            {
+                var googleIdentity = await _googleSignInService.SignInAsync();
+                await _authService.GetOrCreateExternalAccountAsync(
+                    GoogleSignInService.ProviderName,
+                    googleIdentity.Subject,
+                    googleIdentity.Email);
+                OpenAuthenticatedApp();
+            }
+            catch (GoogleSignInCancelledException)
+            {
+            }
+            catch (GoogleClientConfigurationException)
+            {
+                ShowError(AppResources.GoogleClientSecretRequired);
+            }
+            catch (TimeoutException)
+            {
+                ShowError(AppResources.GoogleAuthTimeout);
+            }
+            catch (Exception exception)
+            {
+                var details = exception.GetBaseException().Message;
+                ShowError(string.IsNullOrWhiteSpace(details)
+                    ? AppResources.GoogleAuthFailed
+                    : $"{AppResources.GoogleAuthFailed}{Environment.NewLine}{details}");
+            }
+            finally
+            {
+                SetLoading(false);
+            }
+        }
+
+        private void OpenAuthenticatedApp()
+        {
+            var window = Application.Current?.Windows.FirstOrDefault();
+            if (window is null)
+            {
+                ShowError(AppResources.ApplicationWindowUnavailable);
+                return;
+            }
+
+            window.Page = new AppShell();
+            _inactivityService.Reset();
+            _inactivityService.Start();
         }
 
         private async void OnRegisterClicked(object? sender, EventArgs e)
@@ -92,6 +145,7 @@ namespace TodoLearn.Views
         {
             LoginButton.IsEnabled = !isLoading;
             RegisterButton.IsEnabled = !isLoading;
+            GoogleSignInButton.IsEnabled = !isLoading;
         }
 
         private void ShowError(string message)

@@ -12,6 +12,7 @@ namespace TodoLearn
 
         public DbSet<TaskItem> Tasks { get; set; } = null!;
         public DbSet<UserAccount> UserAccounts { get; set; } = null!;
+        public DbSet<ExternalLogin> ExternalLogins { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -20,6 +21,7 @@ namespace TodoLearn
             modelBuilder.Entity<TaskItem>().Ignore(t => t.IsEditing);
             modelBuilder.Entity<TaskItem>().Ignore(t => t.IsDetailsVisible);
             modelBuilder.Entity<TaskItem>().Ignore(t => t.IsDescriptionExpanded);
+            modelBuilder.Entity<TaskItem>().Ignore(t => t.CanExpandDescription);
 
             modelBuilder.Entity<UserAccount>(entity =>
             {
@@ -28,6 +30,18 @@ namespace TodoLearn
                 entity.Property(user => user.Username).HasMaxLength(50).IsRequired();
                 entity.Property(user => user.PasswordHash).IsRequired();
                 entity.Property(user => user.PasswordSalt).IsRequired();
+                entity.HasMany(user => user.ExternalLogins)
+                    .WithOne(login => login.UserAccount)
+                    .HasForeignKey(login => login.UserAccountId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<ExternalLogin>(entity =>
+            {
+                entity.ToTable("ExternalLogins");
+                entity.Property(login => login.Provider).HasMaxLength(32).IsRequired();
+                entity.Property(login => login.Subject).HasMaxLength(255).IsRequired();
+                entity.HasIndex(login => new { login.Provider, login.Subject }).IsUnique();
             });
         }
     }

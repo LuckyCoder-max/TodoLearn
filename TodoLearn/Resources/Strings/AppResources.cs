@@ -18,6 +18,14 @@ public static class AppResources
     public static string PasswordPlaceholder => GetString(nameof(PasswordPlaceholder));
     public static string LoginButton => GetString(nameof(LoginButton));
     public static string RegisterButton => GetString(nameof(RegisterButton));
+    public static string ContinueWithGoogle => GetString(nameof(ContinueWithGoogle));
+    public static string LoginMethodSeparator => GetString(nameof(LoginMethodSeparator));
+    public static string GoogleAuthFailed => GetString(nameof(GoogleAuthFailed));
+    public static string GoogleAuthTimeout => GetString(nameof(GoogleAuthTimeout));
+    public static string GoogleAuthBrowserMessage => GetString(nameof(GoogleAuthBrowserMessage));
+    public static string GoogleAuthCancelled => GetString(nameof(GoogleAuthCancelled));
+    public static string GoogleAuthInvalidResponse => GetString(nameof(GoogleAuthInvalidResponse));
+    public static string GoogleClientSecretRequired => GetString(nameof(GoogleClientSecretRequired));
     public static string InvalidCredentials => GetString(nameof(InvalidCredentials));
     public static string LoginLocked => GetString(nameof(LoginLocked));
     public static string ApplicationWindowUnavailable => GetString(nameof(ApplicationWindowUnavailable));

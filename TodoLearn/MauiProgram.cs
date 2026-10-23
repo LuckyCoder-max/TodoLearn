@@ -26,6 +26,7 @@ namespace ToDoListApp
             builder.Services.AddDbContextFactory<AppDbContext>(options =>
                 options.UseSqlite($"Data Source={dbPath}"));
             builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<IGoogleSignInService, GoogleSignInService>();
             builder.Services.AddSingleton<TaskService>();
             builder.Services.AddSingleton<InactivityService>();
             builder.Services.AddTransient<LoginPage>();
@@ -48,6 +49,17 @@ namespace ToDoListApp
                         "PasswordSalt" TEXT NOT NULL
                     );
                     """);
+                db.Database.ExecuteSqlRaw("""
+                    CREATE TABLE IF NOT EXISTS "ExternalLogins" (
+                        "Id" INTEGER NOT NULL CONSTRAINT "PK_ExternalLogins" PRIMARY KEY AUTOINCREMENT,
+                        "UserAccountId" INTEGER NOT NULL,
+                        "Provider" TEXT NOT NULL,
+                        "Subject" TEXT NOT NULL,
+                        CONSTRAINT "FK_ExternalLogins_UserAccounts_UserAccountId"
+                            FOREIGN KEY ("UserAccountId") REFERENCES "UserAccounts" ("Id") ON DELETE CASCADE
+                    );
+                    """);
+                db.Database.ExecuteSqlRaw("CREATE UNIQUE INDEX IF NOT EXISTS \"IX_ExternalLogins_Provider_Subject\" ON \"ExternalLogins\" (\"Provider\", \"Subject\");");
                 EnsureTaskDescriptionColumn(db);
             }
 
