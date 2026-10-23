@@ -2,17 +2,12 @@ namespace TodoLearn.Helpers
 {
     public static class PasswordValidator
     {
-        private const int MinPasswordLength = 8;
+        public const int MinPasswordLength = CredentialsValidator.MinPasswordLength;
 
         public static (bool IsValid, string? ErrorMessage) Validate(string? password)
         {
-            if (string.IsNullOrWhiteSpace(password))
-                return (false, "Password cannot be empty");
-
-            if (password.Length < MinPasswordLength)
-                return (false, $"Password must be at least {MinPasswordLength} characters long");
-
-            return (true, null);
+            var error = CredentialsValidator.ValidatePassword(password);
+            return (error is null, error);
         }
     }
 }
