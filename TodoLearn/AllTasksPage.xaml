@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:strings="clr-namespace:TodoLearn.Resources.Strings"
              x:Class="TodoLearn.AllTasksPage"
-             Title="AllTasksPage">
+             Title="{x:Static strings:AppResources.AllTasksPageTitle}">
     <VerticalStackLayout>
         <Label 
-            Text="Welcome to .NET MAUI!"
+            Text="{x:Static strings:AppResources.AllTasksEmpty}"
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
     </VerticalStackLayout>

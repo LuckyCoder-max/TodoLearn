@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using TodoLearn.Models;
+using TodoLearn.Resources.Strings;
 using TodoLearn.Services;
 
 namespace TodoLearn
@@ -12,16 +12,22 @@ namespace TodoLearn
         public ObservableCollection<TaskItem> DisplayTasks { get; } = new ObservableCollection<TaskItem>();
 
         private FilterType _currentFilter = FilterType.All;
-        private readonly Dictionary<TaskItem, (string? Text, DateTime DueAt, TaskPriority Priority, bool IsCompleted)> _editBackups
-            = new Dictionary<TaskItem, (string?, DateTime, TaskPriority, bool)>();
+        private readonly Dictionary<TaskItem, (string? Text, string? Description, DateTime DueAt, TaskPriority Priority, bool IsCompleted)> _editBackups
+            = new Dictionary<TaskItem, (string?, string?, DateTime, TaskPriority, bool)>();
 
-        private readonly IDbContextFactory<AppDbContext> _dbFactory;
+        private readonly TaskService _taskService;
 
-        public MainPage(IDbContextFactory<AppDbContext> dbFactory)
+        public MainPage()
+            : this(IPlatformApplication.Current?.Services.GetService<TaskService>()
+                ?? throw new InvalidOperationException(AppResources.TaskServiceRequired))
+        {
+        }
+
+        public MainPage(TaskService taskService)
         {
             InitializeComponent();
             BindingContext = this;
-            _dbFactory = dbFactory;
+            _taskService = taskService;
 
             Tasks.CollectionChanged += (_, __) => RefreshDisplay();
         }
@@ -29,26 +35,25 @@ namespace TodoLearn
         protected override async void OnAppearing()
         {
             Tasks.Clear();
-            await using var db = await _dbFactory.CreateDbContextAsync();
-            var items = await db.Tasks.OrderBy(t => t.CreatedAt).ToListAsync();
+            var items = await _taskService.GetTasksAsync();
             foreach (var it in items)
                 Tasks.Add(it);
             RefreshDisplay();
         }
 
-        
+
 
         private async void OnAddTaskClicked(object? sender, EventArgs e)
         {
-            var text = NewTaskEntry?.Text?.Trim();
+            var newTaskEntry = NewTaskEntry;
+            if (newTaskEntry is null) return;
+
+            var text = newTaskEntry.Text?.Trim();
             if (string.IsNullOrWhiteSpace(text)) return;
-            var task = new TaskItem { Text = text };
-            await using var db = await _dbFactory.CreateDbContextAsync();
-            db.Tasks.Add(task);
-            await db.SaveChangesAsync();
+            var task = await _taskService.AddAsync(text);
             Tasks.Add(task);
-            NewTaskEntry.Text = string.Empty;
-            SimpleLogger.Log($"Added task '{task.Text}' (Id={task.Id})");
+            newTaskEntry.Text = string.Empty;
+            SimpleLogger.Log(string.Format(AppResources.TaskAddedLog, task.Text, task.Id));
         }
 
         private void OnFilterClicked(object? sender, EventArgs e)
@@ -90,10 +95,7 @@ namespace TodoLearn
 
         private async void OnClearCompletedClicked(object? sender, EventArgs e)
         {
-            await using var db = await _dbFactory.CreateDbContextAsync();
-            var all = await db.Tasks.ToListAsync();
-            db.Tasks.RemoveRange(all);
-            await db.SaveChangesAsync();
+            await _taskService.ClearAsync();
             Tasks.Clear();
         }
 
@@ -103,31 +105,29 @@ namespace TodoLearn
             {
                 if (!_editBackups.ContainsKey(t))
                 {
-                    _editBackups[t] = (t.Text, t.DueAt, t.Priority, t.IsCompleted);
+                    _editBackups[t] = (t.Text, t.Description, t.DueAt, t.Priority, t.IsCompleted);
                 }
                 t.IsEditing = true;
             }
         }
 
 
-        
+
 
         private async void OnDeleteClicked(object? sender, EventArgs e)
         {
             if (sender is Button b && b.CommandParameter is TaskItem t)
             {
-                await using var db = await _dbFactory.CreateDbContextAsync();
-                db.Tasks.Remove(t);
-                await db.SaveChangesAsync();
+                await _taskService.DeleteAsync(t);
                 if (Tasks.Contains(t)) Tasks.Remove(t);
-                SimpleLogger.Log($"Deleted task '{t.Text}' (Id={t.Id})");
+                SimpleLogger.Log(string.Format(AppResources.TaskDeletedLog, t.Text, t.Id));
             }
         }
 
         private void OnPriorityPointerEntered(object? sender, EventArgs e)
         {
             if (sender is BindableObject b && b.BindingContext is TaskItem t)
-            { 
+            {
                 t.IsDetailsVisible = true;
             }
         }
@@ -148,7 +148,7 @@ namespace TodoLearn
             }
         }
 
-        
+
 
         private async void OnSaveClicked(object? sender, EventArgs e)
         {
@@ -156,11 +156,9 @@ namespace TodoLearn
             {
                 if (_editBackups.ContainsKey(t))
                     _editBackups.Remove(t);
-                await using var db = await _dbFactory.CreateDbContextAsync();
-                db.Tasks.Update(t);
-                await db.SaveChangesAsync();
+                await _taskService.UpdateAsync(t);
                 t.IsEditing = false;
-                SimpleLogger.Log($"Edited task '{t.Text}' (Id={t.Id})");
+                SimpleLogger.Log(string.Format(AppResources.TaskEditedLog, t.Text, t.Id));
             }
         }
 
@@ -171,12 +169,21 @@ namespace TodoLearn
                 if (_editBackups.TryGetValue(t, out var backup))
                 {
                     t.Text = backup.Text;
+                    t.Description = backup.Description;
                     t.DueAt = backup.DueAt;
                     t.Priority = backup.Priority;
                     t.IsCompleted = backup.IsCompleted;
                     _editBackups.Remove(t);
                 }
                 t.IsEditing = false;
+            }
+        }
+
+        private void OnDescriptionToggleTapped(object? sender, EventArgs e)
+        {
+            if (sender is BindableObject b && b.BindingContext is TaskItem t)
+            {
+                t.IsDescriptionExpanded = !t.IsDescriptionExpanded;
             }
         }
 

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:strings="clr-namespace:TodoLearn.Resources.Strings"
              x:Class="TodoLearn.ImportantPage"
-             Title="ImportantPage">
+             Title="{x:Static strings:AppResources.ImportantPageTitle}">
     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
-        <Label Text="Important Tasks" FontSize="24" HorizontalOptions="Center" />
-        <Label Text="This list is empty for now." HorizontalOptions="Center" />
+        <Label Text="{x:Static strings:AppResources.ImportantPageTitle}" FontSize="24" HorizontalOptions="Center" />
+        <Label Text="{x:Static strings:AppResources.ImportantTasksEmpty}" HorizontalOptions="Center" />
     </VerticalStackLayout>
 </ContentPage>
