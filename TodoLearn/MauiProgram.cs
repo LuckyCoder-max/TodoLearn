@@ -26,6 +26,7 @@ namespace ToDoListApp
             builder.Services.AddDbContextFactory<AppDbContext>(options =>
                 options.UseSqlite($"Data Source={dbPath}"));
             builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<TaskService>();
             builder.Services.AddSingleton<InactivityService>();
             builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<MainPage>();
@@ -47,9 +48,20 @@ namespace ToDoListApp
                         "PasswordSalt" TEXT NOT NULL
                     );
                     """);
+                EnsureTaskDescriptionColumn(db);
             }
 
             return app;
+        }
+
+        private static void EnsureTaskDescriptionColumn(AppDbContext db)
+        {
+            var columnExists = db.Database
+                .SqlQueryRaw<long>("SELECT COUNT(*) AS Value FROM pragma_table_info('Tasks') WHERE name = 'Description'")
+                .Single() > 0;
+
+            if (!columnExists)
+                db.Database.ExecuteSqlRaw("ALTER TABLE \"Tasks\" ADD COLUMN \"Description\" TEXT NULL;");
         }
     }
 }

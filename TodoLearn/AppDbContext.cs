@@ -19,6 +19,7 @@ namespace TodoLearn
 
             modelBuilder.Entity<TaskItem>().Ignore(t => t.IsEditing);
             modelBuilder.Entity<TaskItem>().Ignore(t => t.IsDetailsVisible);
+            modelBuilder.Entity<TaskItem>().Ignore(t => t.IsDescriptionExpanded);
 
             modelBuilder.Entity<UserAccount>(entity =>
             {

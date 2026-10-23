@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using TodoLearn.Resources.Strings;
 
 namespace TodoLearn.Models
 {
@@ -32,7 +33,40 @@ namespace TodoLearn.Models
             }
         }
 
+        private string? _description;
+        public string? Description
+        {
+            get => _description;
+            set
+            {
+                if (_description == value) return;
+                _description = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Description)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasDescription)));
+            }
+        }
+        public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
+
+        private bool _isDescriptionExpanded;
+        public bool IsDescriptionExpanded
+        {
+            get => _isDescriptionExpanded;
+            set
+            {
+                if (_isDescriptionExpanded == value) return;
+                _isDescriptionExpanded = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDescriptionExpanded)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ExpandToggleText)));
+            }
+        }
+
+        public string ExpandToggleText => IsDescriptionExpanded
+            ? AppResources.CollapseDescription
+            : AppResources.ShowFullDescription;
+
         public DateTime CreatedAt { get; set; }
+
+        public string CreatedAtText => string.Format(AppResources.CreatedAtFormat, CreatedAt);
 
         private DateTime _dueAt;
         public DateTime DueAt
@@ -43,10 +77,13 @@ namespace TodoLearn.Models
                 if (_dueAt == value) return;
                 _dueAt = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DueAt)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DueAtText)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DueDate)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DueTime)));
             }
         }
+
+        public string DueAtText => string.Format(AppResources.DueAtFormat, DueAt);
 
         private bool _isEditing;
         public bool IsEditing
