@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppName" xml:space="preserve"><value>TodoLearn</value></data>
+  <data name="LoginPageTitle" xml:space="preserve"><value>Вход</value></data>
+  <data name="UsernamePlaceholder" xml:space="preserve"><value>Логин</value></data>
+  <data name="PasswordPlaceholder" xml:space="preserve"><value>Пароль</value></data>
+  <data name="LoginButton" xml:space="preserve"><value>Войти</value></data>
+  <data name="RegisterButton" xml:space="preserve"><value>Зарегистрироваться</value></data>
+  <data name="InvalidCredentials" xml:space="preserve"><value>Неверный логин или пароль.</value></data>
+  <data name="LoginLocked" xml:space="preserve"><value>Слишком много неудачных попыток. Попробуйте через {0} сек.</value></data>
+  <data name="ApplicationWindowUnavailable" xml:space="preserve"><value>Окно приложения недоступно.</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>Не удалось выполнить вход. Попробуйте ещё раз.</value></data>
+  <data name="AccountCreated" xml:space="preserve"><value>Аккаунт создан. Теперь войдите.</value></data>
+  <data name="RegistrationFailed" xml:space="preserve"><value>Не удалось сохранить аккаунт. Попробуйте ещё раз.</value></data>
+  <data name="UsernameRequired" xml:space="preserve"><value>Введите логин.</value></data>
+  <data name="UsernameTooLong" xml:space="preserve"><value>Логин не должен быть длиннее {0} символов.</value></data>
+  <data name="PasswordRequired" xml:space="preserve"><value>Введите пароль.</value></data>
+  <data name="PasswordTooShort" xml:space="preserve"><value>Пароль должен содержать минимум {0} символов.</value></data>
+  <data name="UsernameTaken" xml:space="preserve"><value>Этот логин уже занят.</value></data>
+  <data name="SessionExpiredTitle" xml:space="preserve"><value>Сессия завершена</value></data>
+  <data name="SessionExpiredMessage" xml:space="preserve"><value>Время бездействия истекло. Войдите снова.</value></data>
+  <data name="OkButton" xml:space="preserve"><value>OK</value></data>
+  <data name="LoginPageRequired" xml:space="preserve"><value>Не удалось открыть страницу входа.</value></data>
+  <data name="TaskServiceRequired" xml:space="preserve"><value>Сервис задач недоступен.</value></data>
+  <data name="TaskListTitle" xml:space="preserve"><value>МОИ ЗАДАЧИ</value></data>
+  <data name="MyDay" xml:space="preserve"><value>Мой день</value></data>
+  <data name="Important" xml:space="preserve"><value>Важные</value></data>
+  <data name="Planned" xml:space="preserve"><value>Запланированные</value></data>
+  <data name="AllTasks" xml:space="preserve"><value>Все задачи</value></data>
+  <data name="AddTaskPlaceholder" xml:space="preserve"><value>Добавить задачу...</value></data>
+  <data name="AddButton" xml:space="preserve"><value>Добавить</value></data>
+  <data name="DeleteButton" xml:space="preserve"><value>Удалить</value></data>
+  <data name="EditTaskPlaceholder" xml:space="preserve"><value>Изменить текст задачи...</value></data>
+  <data name="DescriptionPlaceholder" xml:space="preserve"><value>Добавить описание...</value></data>
+  <data name="PriorityLabel" xml:space="preserve"><value>Приоритет:</value></data>
+  <data name="PriorityLow" xml:space="preserve"><value>Низкий</value></data>
+  <data name="PriorityMedium" xml:space="preserve"><value>Средний</value></data>
+  <data name="PriorityHigh" xml:space="preserve"><value>Высокий</value></data>
+  <data name="DueLabel" xml:space="preserve"><value>Срок:</value></data>
+  <data name="SaveButton" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="CancelButton" xml:space="preserve"><value>Отмена</value></data>
+  <data name="ClearButton" xml:space="preserve"><value>Очистить</value></data>
+  <data name="ShowFullDescription" xml:space="preserve"><value>Показать полностью</value></data>
+  <data name="CollapseDescription" xml:space="preserve"><value>Свернуть</value></data>
+  <data name="CreatedAtFormat" xml:space="preserve"><value>{0:dd.MM.yyyy HH:mm}</value></data>
+  <data name="DueAtFormat" xml:space="preserve"><value>Срок: {0:dd.MM.yyyy HH:mm}</value></data>
+  <data name="AllTasksPageTitle" xml:space="preserve"><value>Все задачи</value></data>
+  <data name="AllTasksEmpty" xml:space="preserve"><value>Список задач пока пуст.</value></data>
+  <data name="ImportantPageTitle" xml:space="preserve"><value>Важные задачи</value></data>
+  <data name="ImportantTasksEmpty" xml:space="preserve"><value>Важных задач пока нет.</value></data>
+  <data name="PlannedPageTitle" xml:space="preserve"><value>Запланированные задачи</value></data>
+  <data name="PlannedTasksEmpty" xml:space="preserve"><value>Запланированных задач пока нет.</value></data>
+  <data name="TaskAddedLog" xml:space="preserve"><value>Добавлена задача «{0}» (Id={1})</value></data>
+  <data name="TaskDeletedLog" xml:space="preserve"><value>Удалена задача «{0}» (Id={1})</value></data>
+  <data name="TaskEditedLog" xml:space="preserve"><value>Изменена задача «{0}» (Id={1})</value></data>
+</root>

@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using TodoLearn;
 using ToDoListApp;
 using System.IO;
+using TodoLearn.Services;
+using TodoLearn.Views;
 
 namespace ToDoListApp
 {
@@ -23,6 +25,10 @@ namespace ToDoListApp
             var dbPath = Path.Combine(FileSystem.AppDataDirectory, "tasks.db");
             builder.Services.AddDbContextFactory<AppDbContext>(options =>
                 options.UseSqlite($"Data Source={dbPath}"));
+            builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<InactivityService>();
+            builder.Services.AddTransient<LoginPage>();
+            builder.Services.AddTransient<MainPage>();
 
             builder.Logging.AddDebug();
 
@@ -33,6 +39,14 @@ namespace ToDoListApp
                 var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
                 using var db = dbFactory.CreateDbContext();
                 db.Database.EnsureCreated();
+                db.Database.ExecuteSqlRaw("""
+                    CREATE TABLE IF NOT EXISTS "UserAccounts" (
+                        "Id" INTEGER NOT NULL CONSTRAINT "PK_UserAccounts" PRIMARY KEY AUTOINCREMENT,
+                        "Username" TEXT NOT NULL UNIQUE,
+                        "PasswordHash" TEXT NOT NULL,
+                        "PasswordSalt" TEXT NOT NULL
+                    );
+                    """);
             }
 
             return app;

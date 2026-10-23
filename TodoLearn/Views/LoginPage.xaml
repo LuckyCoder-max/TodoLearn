@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:strings="clr-namespace:TodoLearn.Resources.Strings"
              x:Class="TodoLearn.Views.LoginPage"
-             Title="Login">
-    <VerticalStackLayout Padding="20" Spacing="15" VerticalOptions="Center">
-        <Label Text="Welcome" FontSize="24" HorizontalOptions="Center" />
-        <Entry x:Name="UsernameEntry" Placeholder="Username" />
-        <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" />
-        <Button Text="Login" Clicked="OnLoginClicked" />
+             Title="{x:Static strings:AppResources.LoginPageTitle}">
+    <VerticalStackLayout Padding="20" Spacing="15" VerticalOptions="Center" MaximumWidthRequest="360" HorizontalOptions="Center">
+        <Label Text="{x:Static strings:AppResources.AppName}" FontSize="24" HorizontalOptions="Center" />
+        <Entry x:Name="UsernameEntry" Placeholder="{x:Static strings:AppResources.UsernamePlaceholder}" />
+        <Entry x:Name="PasswordEntry" Placeholder="{x:Static strings:AppResources.PasswordPlaceholder}" IsPassword="True" />
+        <Button x:Name="LoginButton" Text="{x:Static strings:AppResources.LoginButton}" Clicked="OnLoginClicked" />
+        <Button x:Name="RegisterButton" Text="{x:Static strings:AppResources.RegisterButton}" Clicked="OnRegisterClicked" />
         <Label x:Name="StatusLabel" TextColor="Red" IsVisible="False" />
     </VerticalStackLayout>
 </ContentPage>

@@ -2,36 +2,45 @@
 
 namespace TodoLearn
 {
+    using TodoLearn.Resources.Strings;
+
     public partial class App : Application
     {
-        private readonly InactivityService? _inactivityService;
+        private readonly InactivityService _inactivityService;
+        private readonly IServiceProvider _services;
+        private readonly Views.LoginPage _loginPage;
 
-        public App()
+        public App(Views.LoginPage loginPage, InactivityService inactivityService, IServiceProvider services)
         {
             InitializeComponent();
-            _inactivityService = IPlatformApplication.Current?.Services.GetService<InactivityService>();
+            _loginPage = loginPage;
+            _inactivityService = inactivityService;
+            _services = services;
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            var loginPage = new LoginPage();
-
-            if (_inactivityService != null)
-            {
-                _inactivityService.OnTimeout += OnUserInactiveTimeout;
-                _inactivityService.Start();
-            }
-
-            return new Window(loginPage);
+            _inactivityService.OnTimeout -= OnUserInactiveTimeout;
+            _inactivityService.OnTimeout += OnUserInactiveTimeout;
+            _inactivityService.Start();
+            return new Window(_loginPage);
         }
 
         private void OnUserInactiveTimeout()
         {
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                await Application.Current!.MainPage!.DisplayAlert("Session Expired", "You have been inactive for too long. Please log in again.", "OK");
-                _inactivityService?.Stop();
-                Application.Current.MainPage = new LoginPage();
+                var window = Application.Current?.Windows.FirstOrDefault();
+                if (window?.Page is null)
+                    return;
+
+                await window.Page.DisplayAlertAsync(
+                    AppResources.SessionExpiredTitle,
+                    AppResources.SessionExpiredMessage,
+                    AppResources.OkButton);
+                _inactivityService.Stop();
+                window.Page = _services.GetService(typeof(LoginPage)) as LoginPage
+                    ?? throw new InvalidOperationException(AppResources.LoginPageRequired);
             });
         }
     }

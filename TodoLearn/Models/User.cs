@@ -1,5 +1,4 @@
-using System.Security.Cryptography;
-using System.Text;
+using TodoLearn.Services;
 
 namespace TodoLearn.Models
 {
@@ -25,12 +24,7 @@ namespace TodoLearn.Models
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(plainPassword);
 
-            var saltBytes = RandomNumberGenerator.GetBytes(16);
-            var salt = Convert.ToBase64String(saltBytes);
-
-            var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(salt + plainPassword));
-            var hash = Convert.ToBase64String(hashBytes);
-
+            var (hash, salt) = PasswordHasher.Create(plainPassword);
             PasswordHash = $"{salt}:{hash}";
         }
 
@@ -45,14 +39,7 @@ namespace TodoLearn.Models
                 if (parts.Length != 2)
                     return false;
 
-                var salt = parts[0];
-                var storedHash = parts[1];
-
-                var computedHashBytes = SHA256.HashData(
-                    Encoding.UTF8.GetBytes(salt + plainPassword));
-                var computedHash = Convert.ToBase64String(computedHashBytes);
-
-                return computedHash == storedHash;
+                return PasswordHasher.Verify(plainPassword, parts[1], parts[0]);
             }
             catch
             {
