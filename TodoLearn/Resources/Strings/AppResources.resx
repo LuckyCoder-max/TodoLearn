@@ -32,6 +32,7 @@
   <data name="Planned" xml:space="preserve"><value>Запланированные</value></data>
   <data name="AllTasks" xml:space="preserve"><value>Все задачи</value></data>
   <data name="AddTaskPlaceholder" xml:space="preserve"><value>Добавить задачу...</value></data>
+  <data name="NewTaskSectionTitle" xml:space="preserve"><value>Новая задача</value></data>
   <data name="AddButton" xml:space="preserve"><value>Добавить</value></data>
   <data name="DeleteButton" xml:space="preserve"><value>Удалить</value></data>
   <data name="EditTaskPlaceholder" xml:space="preserve"><value>Изменить текст задачи...</value></data>
@@ -41,9 +42,16 @@
   <data name="PriorityMedium" xml:space="preserve"><value>Средний</value></data>
   <data name="PriorityHigh" xml:space="preserve"><value>Высокий</value></data>
   <data name="DueLabel" xml:space="preserve"><value>Срок:</value></data>
+  <data name="TimePickerFormat24Hour" xml:space="preserve"><value>HH:mm</value></data>
   <data name="SaveButton" xml:space="preserve"><value>Сохранить</value></data>
   <data name="CancelButton" xml:space="preserve"><value>Отмена</value></data>
   <data name="ClearButton" xml:space="preserve"><value>Очистить</value></data>
+  <data name="ClearCompletedButton" xml:space="preserve"><value>Удалить выполненные</value></data>
+  <data name="ClearCompletedFailedTitle" xml:space="preserve"><value>Не удалось удалить задачи</value></data>
+  <data name="ClearCompletedFailedMessage" xml:space="preserve"><value>Выполненные задачи не удалены. Попробуйте ещё раз.</value></data>
+  <data name="NoTasks" xml:space="preserve"><value>Задач в этом списке пока нет</value></data>
+  <data name="TaskSaveFailedTitle" xml:space="preserve"><value>Не удалось сохранить</value></data>
+  <data name="TaskSaveFailedMessage" xml:space="preserve"><value>Изменение не сохранено. Попробуйте ещё раз.</value></data>
   <data name="ShowFullDescription" xml:space="preserve"><value>Показать полностью</value></data>
   <data name="CollapseDescription" xml:space="preserve"><value>Свернуть</value></data>
   <data name="CreatedAtFormat" xml:space="preserve"><value>{0:dd.MM.yyyy HH:mm}</value></data>

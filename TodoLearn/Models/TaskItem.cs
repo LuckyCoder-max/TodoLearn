@@ -41,8 +41,10 @@ namespace TodoLearn.Models
             {
                 if (_description == value) return;
                 _description = value;
+                CanExpandDescription = false;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Description)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasDescription)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowDescriptionToggle)));
             }
         }
         public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
@@ -57,8 +59,24 @@ namespace TodoLearn.Models
                 _isDescriptionExpanded = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDescriptionExpanded)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ExpandToggleText)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowDescriptionToggle)));
             }
         }
+
+        private bool _canExpandDescription;
+        public bool CanExpandDescription
+        {
+            get => _canExpandDescription;
+            set
+            {
+                if (_canExpandDescription == value) return;
+                _canExpandDescription = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanExpandDescription)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowDescriptionToggle)));
+            }
+        }
+
+        public bool ShowDescriptionToggle => CanExpandDescription || IsDescriptionExpanded;
 
         public string ExpandToggleText => IsDescriptionExpanded
             ? AppResources.CollapseDescription

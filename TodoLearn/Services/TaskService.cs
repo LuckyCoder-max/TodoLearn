@@ -35,9 +35,15 @@ public sealed class TaskService
         }
     }
 
-    public async Task<TaskItem> AddAsync(string text)
+    public async Task<TaskItem> AddAsync(string text, string? description, TaskPriority priority, DateTime dueAt)
     {
-        var task = new TaskItem { Text = text };
+        var task = new TaskItem
+        {
+            Text = text,
+            Description = string.IsNullOrWhiteSpace(description) ? null : description,
+            Priority = priority,
+            DueAt = dueAt
+        };
         await using var db = await _dbFactory.CreateDbContextAsync();
         db.Tasks.Add(task);
         await db.SaveChangesAsync();
@@ -61,10 +67,10 @@ public sealed class TaskService
         _tasks?.Remove(task);
     }
 
-    public async Task ClearAsync()
+    public async Task ClearCompletedAsync()
     {
         await using var db = await _dbFactory.CreateDbContextAsync();
-        await db.Tasks.ExecuteDeleteAsync();
-        _tasks?.Clear();
+        await db.Tasks.Where(task => task.IsCompleted).ExecuteDeleteAsync();
+        _tasks?.RemoveAll(task => task.IsCompleted);
     }
 }

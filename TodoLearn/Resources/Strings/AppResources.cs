@@ -40,6 +40,7 @@ public static class AppResources
     public static string Planned => GetString(nameof(Planned));
     public static string AllTasks => GetString(nameof(AllTasks));
     public static string AddTaskPlaceholder => GetString(nameof(AddTaskPlaceholder));
+    public static string NewTaskSectionTitle => GetString(nameof(NewTaskSectionTitle));
     public static string AddButton => GetString(nameof(AddButton));
     public static string DeleteButton => GetString(nameof(DeleteButton));
     public static string EditTaskPlaceholder => GetString(nameof(EditTaskPlaceholder));
@@ -49,9 +50,16 @@ public static class AppResources
     public static string PriorityMedium => GetString(nameof(PriorityMedium));
     public static string PriorityHigh => GetString(nameof(PriorityHigh));
     public static string DueLabel => GetString(nameof(DueLabel));
+    public static string TimePickerFormat24Hour => GetString(nameof(TimePickerFormat24Hour));
     public static string SaveButton => GetString(nameof(SaveButton));
     public static string CancelButton => GetString(nameof(CancelButton));
     public static string ClearButton => GetString(nameof(ClearButton));
+    public static string ClearCompletedButton => GetString(nameof(ClearCompletedButton));
+    public static string ClearCompletedFailedTitle => GetString(nameof(ClearCompletedFailedTitle));
+    public static string ClearCompletedFailedMessage => GetString(nameof(ClearCompletedFailedMessage));
+    public static string NoTasks => GetString(nameof(NoTasks));
+    public static string TaskSaveFailedTitle => GetString(nameof(TaskSaveFailedTitle));
+    public static string TaskSaveFailedMessage => GetString(nameof(TaskSaveFailedMessage));
     public static string ShowFullDescription => GetString(nameof(ShowFullDescription));
     public static string CollapseDescription => GetString(nameof(CollapseDescription));
     public static string CreatedAtFormat => GetString(nameof(CreatedAtFormat));

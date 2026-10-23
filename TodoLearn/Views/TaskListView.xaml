@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:strings="clr-namespace:TodoLearn.Resources.Strings"
+             x:Class="TodoLearn.Views.TaskListView">
+    <Grid Padding="16" RowDefinitions="Auto, Auto, *, Auto" RowSpacing="12">
+        <Label x:Name="TitleLabel" Grid.Row="0" FontSize="22" FontAttributes="Bold" />
+
+        <Border Grid.Row="1" Padding="12" Stroke="{AppThemeBinding Light={StaticResource Gray200Brush}, Dark={StaticResource Gray600Brush}}" Background="{AppThemeBinding Light={StaticResource WhiteBrush}, Dark={StaticResource Gray900Brush}}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+            </Border.StrokeShape>
+            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="6">
+                <Label Grid.Row="0" Text="{x:Static strings:AppResources.NewTaskSectionTitle}" FontSize="16" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+                <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                    <Entry x:Name="NewTaskEntry" Grid.Column="0" Placeholder="{x:Static strings:AppResources.AddTaskPlaceholder}" ReturnType="Done" Completed="OnAddTaskClicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" PlaceholderColor="{StaticResource Gray500}" />
+                    <Button Grid.Column="1" Text="{x:Static strings:AppResources.AddButton}" Clicked="OnAddTaskClicked" />
+                </Grid>
+                <Editor x:Name="NewTaskDescriptionEditor" Grid.Row="2" Placeholder="{x:Static strings:AppResources.DescriptionPlaceholder}" HeightRequest="64" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" PlaceholderColor="{StaticResource Gray500}" />
+                <Grid Grid.Row="3" ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                    <Label Grid.Column="0" Text="{x:Static strings:AppResources.PriorityLabel}" VerticalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+                    <Picker x:Name="NewTaskPriorityPicker" Grid.Column="1" ItemsSource="{Binding PriorityOptions}" SelectedIndex="0" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+                </Grid>
+                <Label Grid.Row="4" Text="{x:Static strings:AppResources.DueLabel}" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                <Grid Grid.Row="5" ColumnDefinitions="*, *" ColumnSpacing="8">
+                    <DatePicker x:Name="NewTaskDatePicker" Grid.Column="0" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+                    <TimePicker x:Name="NewTaskTimePicker" Grid.Column="1" Format="{x:Static strings:AppResources.TimePickerFormat24Hour}" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+                </Grid>
+            </Grid>
+        </Border>
+
+        <CollectionView Grid.Row="2" ItemsSource="{Binding DisplayTasks}" SelectionMode="None">
+            <CollectionView.EmptyView>
+                <Label Text="{x:Static strings:AppResources.NoTasks}" HorizontalOptions="Center" VerticalOptions="Center" TextColor="Gray" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="10" ColumnDefinitions="40, *, Auto" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="8" RowSpacing="6">
+                        <CheckBox Grid.Row="0" Grid.Column="0" IsChecked="{Binding IsCompleted, Mode=OneWay}" CheckedChanged="OnTaskCompletionChanged" VerticalOptions="Start" />
+
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4">
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnTaskDoubleTapped" />
+                            </VerticalStackLayout.GestureRecognizers>
+                            <Label Text="{Binding Text}" LineBreakMode="WordWrap" VerticalOptions="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsCompleted}" Value="True">
+                                        <Setter Property="TextDecorations" Value="Strikethrough" />
+                                        <Setter Property="TextColor" Value="Gray" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <HorizontalStackLayout Spacing="6">
+                                <Frame WidthRequest="12" HeightRequest="12" CornerRadius="6" Padding="0" HasShadow="False" VerticalOptions="Center">
+                                    <Frame.Triggers>
+                                        <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="Low">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource PriorityLowColor}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="Medium">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource PriorityMediumColor}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="High">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource PriorityHighColor}" />
+                                        </DataTrigger>
+                                    </Frame.Triggers>
+                                </Frame>
+                                <Label Text="{Binding DueAtText}" FontSize="12" TextColor="Gray" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+
+                        <Button Grid.Row="0" Grid.Column="2" Text="{x:Static strings:AppResources.DeleteButton}" Clicked="OnDeleteClicked" CommandParameter="{Binding .}" VerticalOptions="Start" />
+
+                        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="*, Auto" ColumnSpacing="8" IsVisible="{Binding HasDescription}">
+                            <Label Grid.Column="0" Text="{Binding Description}" FontSize="13" TextColor="Gray" LineBreakMode="TailTruncation" MaxLines="1" SizeChanged="OnDescriptionLabelSizeChanged" PropertyChanged="OnDescriptionLabelPropertyChanged">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsDescriptionExpanded}" Value="True">
+                                        <Setter Property="MaxLines" Value="-1" />
+                                        <Setter Property="LineBreakMode" Value="WordWrap" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label Grid.Column="1" Text="{Binding ExpandToggleText}" IsVisible="{Binding ShowDescriptionToggle}" FontSize="12" TextColor="{StaticResource Primary}" VerticalOptions="End">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnDescriptionToggleTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+
+                        <VerticalStackLayout Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Spacing="8" IsVisible="{Binding IsEditing}">
+                            <Entry Text="{Binding Text, Mode=TwoWay}" Placeholder="{x:Static strings:AppResources.EditTaskPlaceholder}" />
+                            <Editor Text="{Binding Description, Mode=TwoWay}" Placeholder="{x:Static strings:AppResources.DescriptionPlaceholder}" AutoSize="TextChanges" MinimumHeightRequest="60" />
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="{x:Static strings:AppResources.PriorityLabel}" VerticalOptions="Center" />
+                                <Button Text="{x:Static strings:AppResources.PriorityLow}" BackgroundColor="{StaticResource PriorityLowColor}" Clicked="OnPrioritySelectClicked" CommandParameter="0" />
+                                <Button Text="{x:Static strings:AppResources.PriorityMedium}" BackgroundColor="{StaticResource PriorityMediumColor}" Clicked="OnPrioritySelectClicked" CommandParameter="1" />
+                                <Button Text="{x:Static strings:AppResources.PriorityHigh}" BackgroundColor="{StaticResource PriorityHighColor}" Clicked="OnPrioritySelectClicked" CommandParameter="2" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="{x:Static strings:AppResources.DueLabel}" VerticalOptions="Center" />
+                                <DatePicker Date="{Binding DueDate, Mode=TwoWay}" />
+                                <TimePicker Time="{Binding DueTime, Mode=TwoWay}" Format="{x:Static strings:AppResources.TimePickerFormat24Hour}" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="End">
+                                <Button Text="{x:Static strings:AppResources.SaveButton}" Clicked="OnSaveClicked" />
+                                <Button Text="{x:Static strings:AppResources.CancelButton}" Clicked="OnCancelClicked" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button x:Name="ClearCompletedButton" Grid.Row="3" Text="{x:Static strings:AppResources.ClearCompletedButton}" Clicked="OnClearCompletedClicked" HorizontalOptions="End" />
+    </Grid>
+</ContentView>

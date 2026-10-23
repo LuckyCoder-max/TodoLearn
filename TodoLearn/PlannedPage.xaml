@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:strings="clr-namespace:TodoLearn.Resources.Strings"
-             x:Class="TodoLearn.PlannedPage"
-             Title="{x:Static strings:AppResources.PlannedPageTitle}">
-    <VerticalStackLayout>
-        <Label 
-            Text="{x:Static strings:AppResources.PlannedTasksEmpty}"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             xmlns:views="clr-namespace:TodoLearn.Views"
+             x:Class="TodoLearn.PlannedPage">
+    <views:TaskListView x:Name="TaskList" />
 </ContentPage>
