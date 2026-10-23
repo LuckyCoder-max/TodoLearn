@@ -2,11 +2,11 @@ using System;
 using System.Threading;
 using TodoLearn.Views;
 
-namespace TodoLearn
+namespace TodoLearn.Services
 {
     public class InactivityService
     {
-        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(10);
+        private readonly TimeSpan _timeout = TimeSpan.FromMinutes(5);
         private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(1);
         private readonly object _lock = new object();
 

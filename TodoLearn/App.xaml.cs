@@ -3,18 +3,21 @@
 namespace TodoLearn
 {
     using TodoLearn.Resources.Strings;
+    using TodoLearn.Services;
 
     public partial class App : Application
     {
         private readonly InactivityService _inactivityService;
+        private readonly AuthSessionService _authSessionService;
         private readonly IServiceProvider _services;
         private readonly Views.LoginPage _loginPage;
 
-        public App(Views.LoginPage loginPage, InactivityService inactivityService, IServiceProvider services)
+        public App(Views.LoginPage loginPage, InactivityService inactivityService, AuthSessionService authSessionService, IServiceProvider services)
         {
             InitializeComponent();
             _loginPage = loginPage;
             _inactivityService = inactivityService;
+            _authSessionService = authSessionService;
             _services = services;
         }
 
@@ -39,6 +42,7 @@ namespace TodoLearn
                     AppResources.SessionExpiredMessage,
                     AppResources.OkButton);
                 _inactivityService.Stop();
+                _authSessionService.ClearRememberedAccount();
                 window.Page = _services.GetService(typeof(LoginPage)) as LoginPage
                     ?? throw new InvalidOperationException(AppResources.LoginPageRequired);
             });

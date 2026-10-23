@@ -10,20 +10,44 @@ namespace TodoLearn.Views
     {
         private readonly InactivityService _inactivityService;
         private readonly AuthService _authService;
+        private readonly AuthSessionService _authSessionService;
         private readonly IGoogleSignInService _googleSignInService;
+        private bool _restoreAttempted;
 
         public LoginPage(
             AuthService authService,
             InactivityService inactivityService,
+            AuthSessionService authSessionService,
             IGoogleSignInService googleSignInService)
         {
             InitializeComponent();
             _authService = authService ?? throw new ArgumentNullException(nameof(authService));
             _inactivityService = inactivityService ?? throw new ArgumentNullException(nameof(inactivityService));
+            _authSessionService = authSessionService ?? throw new ArgumentNullException(nameof(authSessionService));
             _googleSignInService = googleSignInService ?? throw new ArgumentNullException(nameof(googleSignInService));
             var isWindows = DeviceInfo.Platform == DevicePlatform.WinUI;
             GoogleSignInSeparator.IsVisible = isWindows;
             GoogleSignInButton.IsVisible = isWindows;
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            if (_restoreAttempted)
+                return;
+
+            _restoreAttempted = true;
+            var username = await _authSessionService.GetRememberedUsernameAsync();
+            if (username is null)
+                return;
+
+            var window = Application.Current?.Windows.FirstOrDefault();
+            if (window is null)
+                return;
+
+            window.Page = new AppShell();
+            _inactivityService.Reset();
+            _inactivityService.Start();
         }
 
         private async void OnLoginClicked(object? sender, EventArgs e)
@@ -50,7 +74,7 @@ namespace TodoLearn.Views
                     return;
                 }
 
-                OpenAuthenticatedApp();
+                await OpenAuthenticatedAppAsync(UsernameEntry.Text!.Trim());
             }
             catch
             {
@@ -70,11 +94,11 @@ namespace TodoLearn.Views
             try
             {
                 var googleIdentity = await _googleSignInService.SignInAsync();
-                await _authService.GetOrCreateExternalAccountAsync(
+                var username = await _authService.GetOrCreateExternalAccountAsync(
                     GoogleSignInService.ProviderName,
                     googleIdentity.Subject,
                     googleIdentity.Email);
-                OpenAuthenticatedApp();
+                await OpenAuthenticatedAppAsync(username);
             }
             catch (GoogleSignInCancelledException)
             {
@@ -100,7 +124,7 @@ namespace TodoLearn.Views
             }
         }
 
-        private void OpenAuthenticatedApp()
+        private async Task OpenAuthenticatedAppAsync(string username)
         {
             var window = Application.Current?.Windows.FirstOrDefault();
             if (window is null)
@@ -109,6 +133,7 @@ namespace TodoLearn.Views
                 return;
             }
 
+            await _authSessionService.RememberAccountAsync(username);
             window.Page = new AppShell();
             _inactivityService.Reset();
             _inactivityService.Start();

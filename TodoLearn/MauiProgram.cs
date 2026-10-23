@@ -26,6 +26,7 @@ namespace ToDoListApp
             builder.Services.AddDbContextFactory<AppDbContext>(options =>
                 options.UseSqlite($"Data Source={dbPath}"));
             builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<AuthSessionService>();
             builder.Services.AddSingleton<IGoogleSignInService, GoogleSignInService>();
             builder.Services.AddSingleton<TaskService>();
             builder.Services.AddSingleton<InactivityService>();

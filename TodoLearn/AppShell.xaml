@@ -4,25 +4,30 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:TodoLearn"
+    xmlns:strings="clr-namespace:TodoLearn.Resources.Strings"
     Shell.FlyoutBehavior="Flyout">
 
     <Shell.FlyoutHeader>
-        <Label Text="MY TASKS" Margin="20" FontSize="20" FontAttributes="Bold" />
+        <Label Text="{x:Static strings:AppResources.TaskListTitle}" Margin="20" FontSize="20" FontAttributes="Bold" />
     </Shell.FlyoutHeader>
 
-    <FlyoutItem Title="My Day">
+    <Shell.FlyoutFooter>
+        <Button Text="{x:Static strings:AppResources.LogoutButton}" Clicked="OnLogoutClicked" Margin="16" />
+    </Shell.FlyoutFooter>
+
+    <FlyoutItem Title="{x:Static strings:AppResources.MyDay}">
         <ShellContent ContentTemplate="{DataTemplate local:MainPage}" Route="MyDay" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Important">
+    <FlyoutItem Title="{x:Static strings:AppResources.Important}">
         <ShellContent ContentTemplate="{DataTemplate local:ImportantPage}" Route="Important" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Planned">
+    <FlyoutItem Title="{x:Static strings:AppResources.Planned}">
         <ShellContent ContentTemplate="{DataTemplate local:PlannedPage}" Route="Planned" />
     </FlyoutItem>
 
-    <FlyoutItem Title="All Tasks">
+    <FlyoutItem Title="{x:Static strings:AppResources.AllTasks}">
         <ShellContent ContentTemplate="{DataTemplate local:AllTasksPage}" Route="AllTasks" />
     </FlyoutItem>
 

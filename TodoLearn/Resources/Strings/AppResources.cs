@@ -17,6 +17,7 @@ public static class AppResources
     public static string UsernamePlaceholder => GetString(nameof(UsernamePlaceholder));
     public static string PasswordPlaceholder => GetString(nameof(PasswordPlaceholder));
     public static string LoginButton => GetString(nameof(LoginButton));
+    public static string LogoutButton => GetString(nameof(LogoutButton));
     public static string RegisterButton => GetString(nameof(RegisterButton));
     public static string ContinueWithGoogle => GetString(nameof(ContinueWithGoogle));
     public static string LoginMethodSeparator => GetString(nameof(LoginMethodSeparator));

@@ -9,6 +9,7 @@
   <data name="UsernamePlaceholder" xml:space="preserve"><value>Логин</value></data>
   <data name="PasswordPlaceholder" xml:space="preserve"><value>Пароль</value></data>
   <data name="LoginButton" xml:space="preserve"><value>Войти</value></data>
+  <data name="LogoutButton" xml:space="preserve"><value>Выйти из аккаунта</value></data>
   <data name="RegisterButton" xml:space="preserve"><value>Зарегистрироваться</value></data>
   <data name="ContinueWithGoogle" xml:space="preserve"><value>Продолжить с Google</value></data>
   <data name="LoginMethodSeparator" xml:space="preserve"><value>или</value></data>
