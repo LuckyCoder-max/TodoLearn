@@ -95,4 +95,12 @@ public static class AppResources
     public static string TaskReminderSnooze1Hour => GetString(nameof(TaskReminderSnooze1Hour));
     public static string TaskReminderSaveFailedTitle => GetString(nameof(TaskReminderSaveFailedTitle));
     public static string TaskReminderSaveFailedMessage => GetString(nameof(TaskReminderSaveFailedMessage));
+    public static string Categories => GetString(nameof(Categories));
+    public static string CategoryLabel => GetString(nameof(CategoryLabel));
+    public static string CategoryNone => GetString(nameof(CategoryNone));
+    public static string CategoryWork => GetString(nameof(CategoryWork));
+    public static string CategoryHome => GetString(nameof(CategoryHome));
+    public static string CategoryShopping => GetString(nameof(CategoryShopping));
+    public static string CategoryStudy => GetString(nameof(CategoryStudy));
+    public static string CategoryPersonal => GetString(nameof(CategoryPersonal));
 }

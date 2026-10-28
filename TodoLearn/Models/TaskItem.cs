@@ -15,6 +15,29 @@ namespace TodoLearn.Models
     {
         public int Id { get; set; }
         public int? UserAccountId { get; set; }
+        private TaskCategory? _category;
+        public TaskCategory? Category
+        {
+            get => _category;
+            set
+            {
+                if (_category == value) return;
+                _category = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Category)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CategoryIndex)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CategoryName)));
+            }
+        }
+
+        public int CategoryIndex
+        {
+            get => Category is { } category ? (int)category + 1 : 0;
+            set => Category = value > 0 && value <= Enum.GetValues<TaskCategory>().Length
+                ? (TaskCategory)(value - 1) : null;
+        }
+
+        public string CategoryName => TaskCategories.Names[CategoryIndex];
+
         public TaskItem()
         {
             CreatedAt = DateTime.Now;

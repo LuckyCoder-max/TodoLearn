@@ -19,6 +19,8 @@ namespace TodoLearn
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<TaskItem>().Ignore(t => t.IsEditing);
+            modelBuilder.Entity<TaskItem>().Ignore(t => t.CategoryIndex);
+            modelBuilder.Entity<TaskItem>().Ignore(t => t.CategoryName);
             modelBuilder.Entity<TaskItem>().Ignore(t => t.IsDetailsVisible);
             modelBuilder.Entity<TaskItem>().Ignore(t => t.IsDescriptionExpanded);
             modelBuilder.Entity<TaskItem>().Ignore(t => t.CanExpandDescription);

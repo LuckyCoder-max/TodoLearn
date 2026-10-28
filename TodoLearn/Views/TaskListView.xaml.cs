@@ -21,6 +21,19 @@ public partial class TaskListView : ContentView
 
     public FilterType Filter { get; set; } = FilterType.MyDay;
 
+    public IReadOnlyList<string> CategoryOptions => TaskCategories.Names;
+    private bool _categoryView;
+    private TaskCategory? _selectedCategory;
+
+    public void SetCategory(TaskCategory? category)
+    {
+        _categoryView = true;
+        _selectedCategory = category;
+        TitleLabel.Text = CategoryOptions[category is { } value ? (int)value + 1 : 0];
+        NewTaskCategoryPicker.SelectedIndex = category is { } selected ? (int)selected + 1 : 0;
+        RefreshDisplay();
+    }
+
     public TaskListView()
     {
         InitializeComponent();
@@ -61,7 +74,8 @@ public partial class TaskListView : ContentView
         var dueAt = (NewTaskDatePicker.Date?.Date ?? DateTime.Today)
             + (NewTaskTimePicker.Time ?? DateTime.Now.TimeOfDay);
 
-        var task = await _taskService.AddAsync(text, description, priority, dueAt);
+        TaskCategory? category = NewTaskCategoryPicker.SelectedIndex > 0 ? (TaskCategory)(NewTaskCategoryPicker.SelectedIndex - 1) : null;
+        var task = await _taskService.AddAsync(text, description, priority, dueAt, category);
         Tasks.Add(task);
         NewTaskEntry.Text = string.Empty;
         NewTaskDescriptionEditor.Text = string.Empty;
@@ -118,8 +132,8 @@ public partial class TaskListView : ContentView
     {
         try
         {
-            await _taskService.ClearCompletedAsync();
-            foreach (var task in Tasks.Where(task => task.IsCompleted).ToList())
+            await _taskService.ClearCompletedAsync(_categoryView, _selectedCategory);
+            foreach (var task in Tasks.Where(task => task.IsCompleted && (!_categoryView || task.Category == _selectedCategory)).ToList())
                 Tasks.Remove(task);
             RefreshDisplay();
         }
@@ -148,7 +162,8 @@ public partial class TaskListView : ContentView
                 task.Description,
                 task.DueAt,
                 task.Priority,
-                task.IsCompleted);
+                task.IsCompleted,
+                task.Category);
         }
 
         task.IsEditing = true;
@@ -178,6 +193,7 @@ public partial class TaskListView : ContentView
             task.DueAt = backup.DueAt;
             task.Priority = backup.Priority;
             task.IsCompleted = backup.IsCompleted;
+            task.Category = backup.Category;
         }
 
         task.IsEditing = false;
@@ -232,11 +248,14 @@ public partial class TaskListView : ContentView
             _ => Tasks.Where(task => task.DueAt.Date == DateTime.Now.Date)
         };
 
+        if (_categoryView)
+            filteredTasks = Tasks.Where(task => task.Category == _selectedCategory);
+
         DisplayTasks.Clear();
         foreach (var task in filteredTasks.OrderBy(task => task.IsCompleted).ThenBy(task => task.DueAt))
             DisplayTasks.Add(task);
 
-        ClearCompletedButton.IsEnabled = Tasks.Any(task => task.IsCompleted);
+        ClearCompletedButton.IsEnabled = Tasks.Any(task => task.IsCompleted && (!_categoryView || task.Category == _selectedCategory));
     }
 
     private static string GetTitle(FilterType filter) => filter switch
@@ -252,5 +271,6 @@ public partial class TaskListView : ContentView
         string? Description,
         DateTime DueAt,
         TaskPriority Priority,
-        bool IsCompleted);
+        bool IsCompleted,
+        TaskCategory? Category);
 }

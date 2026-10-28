@@ -45,12 +45,13 @@ public sealed class TaskService
         }
     }
 
-    public async Task<TaskItem> AddAsync(string text, string? description, TaskPriority priority, DateTime dueAt)
+    public async Task<TaskItem> AddAsync(string text, string? description, TaskPriority priority, DateTime dueAt, TaskCategory? category = null)
     {
         var accountId = GetCurrentAccountId();
         var task = new TaskItem
         {
             UserAccountId = accountId,
+            Category = category,
             Text = text,
             Description = string.IsNullOrWhiteSpace(description) ? null : description,
             Priority = priority,
@@ -181,13 +182,15 @@ public sealed class TaskService
         _tasks?.Remove(task);
     }
 
-    public async Task ClearCompletedAsync()
+    public async Task ClearCompletedAsync(bool filterByCategory = false, TaskCategory? category = null)
     {
         var accountId = GetCurrentAccountId();
         await using var db = await _dbFactory.CreateDbContextAsync();
         var tasks = db.Tasks.Where(task => task.UserAccountId == accountId && task.IsCompleted);
+        if (filterByCategory)
+            tasks = tasks.Where(task => task.Category == category);
         await tasks.ExecuteDeleteAsync();
-        _tasks?.RemoveAll(task => task.IsCompleted);
+        _tasks?.RemoveAll(task => task.IsCompleted && (!filterByCategory || task.Category == category));
     }
 
     private int GetCurrentAccountId() => _authSessionService.CurrentAccountId

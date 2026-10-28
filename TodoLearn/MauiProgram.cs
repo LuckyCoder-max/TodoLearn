@@ -66,6 +66,8 @@ namespace ToDoListApp
                 EnsureTaskReminderColumn(db);
                 EnsureTaskReminderActionColumns(db);
                 EnsureTaskAccountColumn(db);
+                if (!db.Database.SqlQueryRaw<long>("SELECT COUNT(*) AS Value FROM pragma_table_info('Tasks') WHERE name = 'Category'").Any(count => count > 0))
+                    db.Database.ExecuteSqlRaw("ALTER TABLE \"Tasks\" ADD COLUMN \"Category\" INTEGER NULL;");
             }
 
             return app;

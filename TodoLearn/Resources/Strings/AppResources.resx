@@ -87,4 +87,12 @@
   <data name="TaskReminderSnooze1Hour" xml:space="preserve"><value>1 час</value></data>
   <data name="TaskReminderSaveFailedTitle" xml:space="preserve"><value>Не удалось сохранить выбор</value></data>
   <data name="TaskReminderSaveFailedMessage" xml:space="preserve"><value>Напоминание осталось без изменений. Попробуйте ещё раз.</value></data>
+  <data name="Categories" xml:space="preserve"><value>Категории</value></data>
+  <data name="CategoryLabel" xml:space="preserve"><value>Категория</value></data>
+  <data name="CategoryNone" xml:space="preserve"><value>Без категории</value></data>
+  <data name="CategoryWork" xml:space="preserve"><value>Работа</value></data>
+  <data name="CategoryHome" xml:space="preserve"><value>Дом и семья</value></data>
+  <data name="CategoryShopping" xml:space="preserve"><value>Покупки</value></data>
+  <data name="CategoryStudy" xml:space="preserve"><value>Учёба</value></data>
+  <data name="CategoryPersonal" xml:space="preserve"><value>Личное</value></data>
 </root>
