@@ -11,6 +11,12 @@ public partial class MainPage : ContentPage
     {
         base.OnAppearing();
         await TaskList.LoadTasksAsync();
+        var reminderService = IPlatformApplication.Current?.Services.GetService<TodoLearn.Services.TaskReminderService>();
+        if (reminderService is not null)
+        {
+            reminderService.SetWindowActive(true);
+            await reminderService.ShowPendingInAppRemindersAsync();
+        }
     }
 
 }

@@ -30,6 +30,7 @@ namespace ToDoListApp
             builder.Services.AddSingleton<IGoogleSignInService, GoogleSignInService>();
             builder.Services.AddSingleton<TaskService>();
             builder.Services.AddSingleton<InactivityService>();
+            builder.Services.AddSingleton<TaskReminderService>();
             builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<MainPage>();
 
@@ -62,6 +63,8 @@ namespace ToDoListApp
                     """);
                 db.Database.ExecuteSqlRaw("CREATE UNIQUE INDEX IF NOT EXISTS \"IX_ExternalLogins_Provider_Subject\" ON \"ExternalLogins\" (\"Provider\", \"Subject\");");
                 EnsureTaskDescriptionColumn(db);
+                EnsureTaskReminderColumn(db);
+                EnsureTaskReminderActionColumns(db);
                 EnsureTaskAccountColumn(db);
             }
 
@@ -77,6 +80,43 @@ namespace ToDoListApp
             if (!columnExists)
                 db.Database.ExecuteSqlRaw("ALTER TABLE \"Tasks\" ADD COLUMN \"Description\" TEXT NULL;");
         }
+
+        private static void EnsureTaskReminderColumn(AppDbContext db)
+        {
+            var columnExists = db.Database
+                .SqlQueryRaw<long>("SELECT COUNT(*) AS Value FROM pragma_table_info('Tasks') WHERE name = 'ReminderSentForDueAt'")
+                .Single() > 0;
+
+            if (!columnExists)
+                db.Database.ExecuteSqlRaw("ALTER TABLE \"Tasks\" ADD COLUMN \"ReminderSentForDueAt\" TEXT NULL;");
+        }
+
+        private static void EnsureTaskReminderActionColumns(AppDbContext db)
+        {
+            EnsureTaskColumn(db, "ReminderPendingForDueAt");
+            EnsureTaskColumn(db, "ReminderSnoozedUntil");
+            EnsureTaskColumn(db, "ReminderDismissedForDueAt");
+        }
+
+        private static void EnsureTaskColumn(AppDbContext db, string columnName)
+        {
+            var columnExists = db.Database
+                .SqlQuery<long>($"SELECT COUNT(*) AS Value FROM pragma_table_info('Tasks') WHERE name = {columnName}")
+                .Single() > 0;
+
+            if (!columnExists)
+            {
+                var sql = columnName switch
+                {
+                    "ReminderPendingForDueAt" => "ALTER TABLE \"Tasks\" ADD COLUMN \"ReminderPendingForDueAt\" TEXT NULL;",
+                    "ReminderSnoozedUntil" => "ALTER TABLE \"Tasks\" ADD COLUMN \"ReminderSnoozedUntil\" TEXT NULL;",
+                    "ReminderDismissedForDueAt" => "ALTER TABLE \"Tasks\" ADD COLUMN \"ReminderDismissedForDueAt\" TEXT NULL;",
+                    _ => throw new ArgumentOutOfRangeException(nameof(columnName))
+                };
+                db.Database.ExecuteSqlRaw(sql);
+            }
+        }
+
         private static void EnsureTaskAccountColumn(AppDbContext db)
         {
             var columnExists = db.Database

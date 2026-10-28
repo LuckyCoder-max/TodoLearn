@@ -9,15 +9,17 @@ namespace TodoLearn
     {
         private readonly InactivityService _inactivityService;
         private readonly AuthSessionService _authSessionService;
+        private readonly TaskReminderService _taskReminderService;
         private readonly IServiceProvider _services;
         private readonly Views.LoginPage _loginPage;
 
-        public App(Views.LoginPage loginPage, InactivityService inactivityService, AuthSessionService authSessionService, IServiceProvider services)
+        public App(Views.LoginPage loginPage, InactivityService inactivityService, AuthSessionService authSessionService, TaskReminderService taskReminderService, IServiceProvider services)
         {
             InitializeComponent();
             _loginPage = loginPage;
             _inactivityService = inactivityService;
             _authSessionService = authSessionService;
+            _taskReminderService = taskReminderService;
             _services = services;
         }
 
@@ -26,7 +28,22 @@ namespace TodoLearn
             _inactivityService.OnTimeout -= OnUserInactiveTimeout;
             _inactivityService.OnTimeout += OnUserInactiveTimeout;
             _inactivityService.Start();
-            return new Window(_loginPage);
+            var window = new Window(_loginPage);
+            window.Activated += OnWindowActivated;
+            window.Deactivated += OnWindowDeactivated;
+            return window;
+        }
+
+        private async void OnWindowActivated(object? sender, EventArgs e)
+        {
+            _taskReminderService.SetWindowActive(true);
+            if (_authSessionService.CurrentAccountId is not null)
+                await _taskReminderService.ShowPendingInAppRemindersAsync();
+        }
+
+        private void OnWindowDeactivated(object? sender, EventArgs e)
+        {
+            _taskReminderService.SetWindowActive(false);
         }
 
         private void OnUserInactiveTimeout()
@@ -42,6 +59,7 @@ namespace TodoLearn
                     AppResources.SessionExpiredMessage,
                     AppResources.OkButton);
                 _inactivityService.Stop();
+                _taskReminderService.Stop();
                 _authSessionService.ClearRememberedAccount();
                 window.Page = _services.GetService(typeof(LoginPage)) as LoginPage
                     ?? throw new InvalidOperationException(AppResources.LoginPageRequired);

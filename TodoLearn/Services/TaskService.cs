@@ -77,8 +77,91 @@ public sealed class TaskService
         if (storedTask is null)
             return;
 
+        if (storedTask.DueAt != task.DueAt || (!storedTask.IsCompleted && task.IsCompleted))
+            task.ResetReminderState();
+
         db.Entry(storedTask).CurrentValues.SetValues(task);
         await db.SaveChangesAsync();
+    }
+
+    public async Task<bool> MarkReminderPendingAsync(TaskItem task, DateTime dueAt, DateTime now)
+    {
+        var accountId = GetCurrentAccountId();
+        if (task.UserAccountId != accountId)
+            return false;
+
+        await using var db = await _dbFactory.CreateDbContextAsync();
+        var storedTask = await db.Tasks.FirstOrDefaultAsync(item =>
+            item.Id == task.Id && item.UserAccountId == accountId);
+        if (storedTask is null
+            || storedTask.IsCompleted
+            || storedTask.DueAt != dueAt
+            || storedTask.ReminderDismissedForDueAt == dueAt
+            || storedTask.ReminderPendingForDueAt == dueAt)
+            return false;
+
+        var snoozeExpired = storedTask.ReminderSnoozedUntil is DateTime snoozedUntil && snoozedUntil <= now;
+        var initialReminderDue = storedTask.ReminderSentForDueAt != dueAt
+            && dueAt > now
+            && dueAt <= now.AddMinutes(10);
+        if (!snoozeExpired && !initialReminderDue)
+            return false;
+
+        if (snoozeExpired)
+            storedTask.ReminderSnoozedUntil = null;
+        else
+            storedTask.ReminderSentForDueAt = dueAt;
+        storedTask.ReminderPendingForDueAt = dueAt;
+        await db.SaveChangesAsync();
+        task.ReminderSentForDueAt = dueAt;
+        task.ReminderPendingForDueAt = dueAt;
+        task.ReminderSnoozedUntil = storedTask.ReminderSnoozedUntil;
+        return true;
+    }
+
+    public async Task<bool> SnoozeReminderAsync(TaskItem task, TimeSpan duration)
+    {
+        if (duration <= TimeSpan.Zero)
+            return false;
+
+        var accountId = GetCurrentAccountId();
+        if (task.UserAccountId != accountId)
+            return false;
+
+        await using var db = await _dbFactory.CreateDbContextAsync();
+        var storedTask = await db.Tasks.FirstOrDefaultAsync(item =>
+            item.Id == task.Id && item.UserAccountId == accountId);
+        if (storedTask is null || storedTask.IsCompleted || storedTask.ReminderPendingForDueAt != storedTask.DueAt)
+            return false;
+
+        storedTask.ReminderPendingForDueAt = null;
+        storedTask.ReminderSnoozedUntil = DateTime.Now.Add(duration);
+        await db.SaveChangesAsync();
+        task.ReminderPendingForDueAt = null;
+        task.ReminderSnoozedUntil = storedTask.ReminderSnoozedUntil;
+        return true;
+    }
+
+    public async Task<bool> DismissReminderAsync(TaskItem task)
+    {
+        var accountId = GetCurrentAccountId();
+        if (task.UserAccountId != accountId)
+            return false;
+
+        await using var db = await _dbFactory.CreateDbContextAsync();
+        var storedTask = await db.Tasks.FirstOrDefaultAsync(item =>
+            item.Id == task.Id && item.UserAccountId == accountId);
+        if (storedTask is null || storedTask.IsCompleted || storedTask.ReminderPendingForDueAt != storedTask.DueAt)
+            return false;
+
+        storedTask.ReminderPendingForDueAt = null;
+        storedTask.ReminderSnoozedUntil = null;
+        storedTask.ReminderDismissedForDueAt = storedTask.DueAt;
+        await db.SaveChangesAsync();
+        task.ReminderPendingForDueAt = null;
+        task.ReminderSnoozedUntil = null;
+        task.ReminderDismissedForDueAt = storedTask.DueAt;
+        return true;
     }
 
     public async Task DeleteAsync(TaskItem task)

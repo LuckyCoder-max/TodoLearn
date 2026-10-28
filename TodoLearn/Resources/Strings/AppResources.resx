@@ -74,4 +74,17 @@
   <data name="TaskAddedLog" xml:space="preserve"><value>Добавлена задача «{0}» (Id={1})</value></data>
   <data name="TaskDeletedLog" xml:space="preserve"><value>Удалена задача «{0}» (Id={1})</value></data>
   <data name="TaskEditedLog" xml:space="preserve"><value>Изменена задача «{0}» (Id={1})</value></data>
+  <data name="TaskReminderTitle" xml:space="preserve"><value>Скоро срок выполнения</value></data>
+  <data name="TaskReminderMessage" xml:space="preserve"><value>Задача «{0}» должна быть выполнена до {1}.</value></data>
+  <data name="TaskReminderPageTitle" xml:space="preserve"><value>Пора вернуться к задаче</value></data>
+  <data name="TaskReminderSnoozeLabel" xml:space="preserve"><value>Напомнить ещё раз через</value></data>
+  <data name="TaskReminderSnoozeButton" xml:space="preserve"><value>Отложить напоминание</value></data>
+  <data name="TaskReminderDismissButton" xml:space="preserve"><value>Больше не напоминать</value></data>
+  <data name="TaskReminderDismissDescription" xml:space="preserve"><value>Задача останется в списке. Отключится только это напоминание.</value></data>
+  <data name="TaskReminderSnooze5Minutes" xml:space="preserve"><value>5 минут</value></data>
+  <data name="TaskReminderSnooze15Minutes" xml:space="preserve"><value>15 минут</value></data>
+  <data name="TaskReminderSnooze30Minutes" xml:space="preserve"><value>30 минут</value></data>
+  <data name="TaskReminderSnooze1Hour" xml:space="preserve"><value>1 час</value></data>
+  <data name="TaskReminderSaveFailedTitle" xml:space="preserve"><value>Не удалось сохранить выбор</value></data>
+  <data name="TaskReminderSaveFailedMessage" xml:space="preserve"><value>Напоминание осталось без изменений. Попробуйте ещё раз.</value></data>
 </root>

@@ -82,4 +82,17 @@ public static class AppResources
     public static string TaskAddedLog => GetString(nameof(TaskAddedLog));
     public static string TaskDeletedLog => GetString(nameof(TaskDeletedLog));
     public static string TaskEditedLog => GetString(nameof(TaskEditedLog));
+    public static string TaskReminderTitle => GetString(nameof(TaskReminderTitle));
+    public static string TaskReminderMessage => GetString(nameof(TaskReminderMessage));
+    public static string TaskReminderPageTitle => GetString(nameof(TaskReminderPageTitle));
+    public static string TaskReminderSnoozeLabel => GetString(nameof(TaskReminderSnoozeLabel));
+    public static string TaskReminderSnoozeButton => GetString(nameof(TaskReminderSnoozeButton));
+    public static string TaskReminderDismissButton => GetString(nameof(TaskReminderDismissButton));
+    public static string TaskReminderDismissDescription => GetString(nameof(TaskReminderDismissDescription));
+    public static string TaskReminderSnooze5Minutes => GetString(nameof(TaskReminderSnooze5Minutes));
+    public static string TaskReminderSnooze15Minutes => GetString(nameof(TaskReminderSnooze15Minutes));
+    public static string TaskReminderSnooze30Minutes => GetString(nameof(TaskReminderSnooze30Minutes));
+    public static string TaskReminderSnooze1Hour => GetString(nameof(TaskReminderSnooze1Hour));
+    public static string TaskReminderSaveFailedTitle => GetString(nameof(TaskReminderSaveFailedTitle));
+    public static string TaskReminderSaveFailedMessage => GetString(nameof(TaskReminderSaveFailedMessage));
 }

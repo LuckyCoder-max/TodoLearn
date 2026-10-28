@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="TodoLearn.Views.TaskReminderPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:strings="clr-namespace:TodoLearn.Resources.Strings"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{AppThemeBinding Light=#F2F4F8, Dark=#15191F}">
+
+    <Grid Padding="24">
+        <Border
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            MaximumWidthRequest="520"
+            Padding="30"
+            Stroke="{AppThemeBinding Light=#E0E4EB, Dark=#343B45}"
+            StrokeThickness="1"
+            BackgroundColor="{AppThemeBinding Light=White, Dark=#222831}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="22" />
+            </Border.StrokeShape>
+
+            <VerticalStackLayout Spacing="18">
+                <Border
+                    WidthRequest="58"
+                    HeightRequest="58"
+                    HorizontalOptions="Center"
+                    BackgroundColor="{AppThemeBinding Light=#E9EEFF, Dark=#303A55}"
+                    StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="18" />
+                    </Border.StrokeShape>
+                    <Label Text="🔔" FontSize="30" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                           TextColor="{AppThemeBinding Light=#435EDB, Dark=#9BAAFF}" />
+                </Border>
+
+                <Label
+                    Text="{x:Static strings:AppResources.TaskReminderPageTitle}"
+                    FontSize="23"
+                    FontAttributes="Bold"
+                    HorizontalTextAlignment="Center"
+                    TextColor="{AppThemeBinding Light=#1D2430, Dark=#F3F5F8}" />
+
+                <Label
+                    x:Name="TaskNameLabel"
+                    FontSize="20"
+                    FontFamily="OpenSansSemibold"
+                    HorizontalTextAlignment="Center"
+                    LineBreakMode="WordWrap"
+                    TextColor="{AppThemeBinding Light=#343B47, Dark=#DCE1E8}" />
+
+                <Label
+                    x:Name="TaskDescriptionLabel"
+                    IsVisible="False"
+                    FontSize="14"
+                    HorizontalTextAlignment="Center"
+                    LineBreakMode="WordWrap"
+                    TextColor="{AppThemeBinding Light=#697383, Dark=#AAB2BF}" />
+
+                <Label
+                    x:Name="DueAtLabel"
+                    FontSize="14"
+                    HorizontalTextAlignment="Center"
+                    TextColor="{AppThemeBinding Light=#697383, Dark=#AAB2BF}" />
+
+                <VerticalStackLayout Spacing="7">
+                    <Label
+                        Text="{x:Static strings:AppResources.TaskReminderSnoozeLabel}"
+                        FontSize="14"
+                        TextColor="{AppThemeBinding Light=#697383, Dark=#AAB2BF}" />
+                    <Picker
+                        x:Name="SnoozePicker"
+                        HeightRequest="48"
+                        BackgroundColor="{AppThemeBinding Light=#F4F6F9, Dark=#2B323C}"
+                        TextColor="{AppThemeBinding Light=#242B36, Dark=#F0F2F5}" />
+                </VerticalStackLayout>
+
+                <Button
+                    x:Name="SnoozeButton"
+                    Text="{x:Static strings:AppResources.TaskReminderSnoozeButton}"
+                    Clicked="OnSnoozeClicked"
+                    HeightRequest="48"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    BackgroundColor="#526FE5"
+                    TextColor="White" />
+
+                <VerticalStackLayout Spacing="5">
+                    <Button
+                        x:Name="DismissButton"
+                        Text="{x:Static strings:AppResources.TaskReminderDismissButton}"
+                        Clicked="OnDismissClicked"
+                        HeightRequest="44"
+                        CornerRadius="12"
+                        BackgroundColor="{AppThemeBinding Light=#F0F1F4, Dark=#303640}"
+                        TextColor="{AppThemeBinding Light=#525B69, Dark=#D2D7DF}" />
+                    <Label
+                        Text="{x:Static strings:AppResources.TaskReminderDismissDescription}"
+                        FontSize="12"
+                        HorizontalTextAlignment="Center"
+                        TextColor="{AppThemeBinding Light=#7B8492, Dark=#9CA5B2}" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

@@ -104,6 +104,19 @@ namespace TodoLearn.Models
 
         public string DueAtText => string.Format(AppResources.DueAtFormat, DueAt);
 
+        public DateTime? ReminderSentForDueAt { get; set; }
+        public DateTime? ReminderPendingForDueAt { get; set; }
+        public DateTime? ReminderSnoozedUntil { get; set; }
+        public DateTime? ReminderDismissedForDueAt { get; set; }
+
+        internal void ResetReminderState()
+        {
+            ReminderSentForDueAt = null;
+            ReminderPendingForDueAt = null;
+            ReminderSnoozedUntil = null;
+            ReminderDismissedForDueAt = null;
+        }
+
         private bool _isEditing;
         public bool IsEditing
         {

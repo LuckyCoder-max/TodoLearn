@@ -7,6 +7,7 @@ namespace TodoLearn
     {
         private readonly InactivityService? _inactivityService;
         private readonly AuthSessionService? _authSessionService;
+        private readonly TaskReminderService? _taskReminderService;
 
         public AppShell()
         {
@@ -14,7 +15,8 @@ namespace TodoLearn
 
             _inactivityService = IPlatformApplication.Current?.Services.GetService<InactivityService>();
             _authSessionService = IPlatformApplication.Current?.Services.GetService<AuthSessionService>();
-
+            _taskReminderService = IPlatformApplication.Current?.Services.GetService<TaskReminderService>();
+            _taskReminderService?.Start();
             CurrentUsernameLabel.Text = _authSessionService?.CurrentUsername ?? string.Empty;
             CurrentUsernameLabel.IsVisible = !string.IsNullOrWhiteSpace(CurrentUsernameLabel.Text);
 
@@ -32,6 +34,7 @@ namespace TodoLearn
         private void OnLogoutClicked(object? sender, EventArgs e)
         {
             _inactivityService?.Stop();
+            _taskReminderService?.Stop();
             _authSessionService?.ClearRememberedAccount();
 
             var services = IPlatformApplication.Current?.Services;
