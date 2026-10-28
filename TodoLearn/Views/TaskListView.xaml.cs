@@ -8,7 +8,103 @@ namespace TodoLearn.Views;
 public partial class TaskListView : ContentView
 {
     private readonly TaskService _taskService;
-    private readonly Dictionary<TaskItem, TaskBackup> _editBackups = new();
+    private TaskItem? _editingTask;
+    public string ComposerTitle => _editingTask is null ? AppResources.NewTaskSectionTitle : AppResources.EditTaskAction;
+    public string ComposerSaveText => _editingTask is null ? AppResources.AddButton : AppResources.SaveButton;
+    private bool _isComposerExpanded;
+    public bool IsComposerExpanded
+    {
+        get => _isComposerExpanded;
+        private set
+        {
+            _isComposerExpanded = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string TodayText => DateTime.Today.ToString("dddd, d MMMM", System.Globalization.CultureInfo.CurrentCulture);
+
+    private void OnComposerToggleClicked(object? sender, EventArgs e)
+    {
+        if (!CreateTaskButton.IsEnabled)
+            return;
+        if (IsComposerExpanded)
+        {
+            CloseComposer();
+            return;
+        }
+        _editingTask = null;
+        NewTaskEntry.Text = QuickTaskEntry.Text;
+        NewTaskDescriptionEditor.Text = string.Empty;
+        NewTaskPriorityPicker.SelectedIndex = 0;
+        NewTaskDatePicker.Date = DateTime.Today;
+        NewTaskTimePicker.Time = DateTime.Now.TimeOfDay;
+        NewTaskCategoryPicker.SelectedIndex = _categoryView && _selectedCategory is { } category ? (int)category + 1 : 0;
+        OpenComposer();
+    }
+
+    private void OpenComposer()
+    {
+        ValidationLabel.IsVisible = false;
+        OnPropertyChanged(nameof(ComposerTitle));
+        OnPropertyChanged(nameof(ComposerSaveText));
+        IsComposerExpanded = true;
+        QuickComposer.IsEnabled = false;
+        TaskCollection.IsEnabled = false;
+        Dispatcher.Dispatch(() => NewTaskEntry.Focus());
+    }
+
+    private void CloseComposer()
+    {
+        IsComposerExpanded = false;
+        _editingTask = null;
+        QuickComposer.IsEnabled = true;
+        TaskCollection.IsEnabled = true;
+        QuickTaskEntry.Focus();
+    }
+
+#if WINDOWS
+    private Microsoft.UI.Xaml.UIElement? _keyboardHost;
+    private readonly List<Microsoft.UI.Xaml.Input.KeyboardAccelerator> _shortcuts = new();
+
+    private void AttachShortcuts(object? sender, EventArgs e)
+    {
+        if (Handler?.PlatformView is not Microsoft.UI.Xaml.UIElement host || _keyboardHost == host)
+            return;
+        DetachShortcuts(sender, e);
+        _keyboardHost = host;
+        AddShortcut(Windows.System.VirtualKey.Escape, Windows.System.VirtualKeyModifiers.None, false);
+        AddShortcut(Windows.System.VirtualKey.Enter, Windows.System.VirtualKeyModifiers.Control, true);
+    }
+
+    private void AddShortcut(Windows.System.VirtualKey key, Windows.System.VirtualKeyModifiers modifiers, bool save)
+    {
+        var shortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator { Key = key, Modifiers = modifiers };
+        shortcut.Invoked += (_, args) =>
+        {
+            if (!IsComposerExpanded)
+                return;
+            args.Handled = true;
+            if (!CreateTaskButton.IsEnabled)
+                return;
+            if (save)
+                OnAddTaskClicked(this, EventArgs.Empty);
+            else
+                CloseComposer();
+        };
+        _keyboardHost!.KeyboardAccelerators.Add(shortcut);
+        _shortcuts.Add(shortcut);
+    }
+
+    private void DetachShortcuts(object? sender, EventArgs e)
+    {
+        if (_keyboardHost is not null)
+            foreach (var shortcut in _shortcuts)
+                _keyboardHost.KeyboardAccelerators.Remove(shortcut);
+        _shortcuts.Clear();
+        _keyboardHost = null;
+    }
+#endif
 
     public ObservableCollection<TaskItem> Tasks { get; } = new();
     public ObservableCollection<TaskItem> DisplayTasks { get; } = new();
@@ -20,7 +116,6 @@ public partial class TaskListView : ContentView
     };
 
     public FilterType Filter { get; set; } = FilterType.MyDay;
-
     public IReadOnlyList<string> CategoryOptions => TaskCategories.Names;
     private bool _categoryView;
     private TaskCategory? _selectedCategory;
@@ -40,6 +135,10 @@ public partial class TaskListView : ContentView
         _taskService = IPlatformApplication.Current?.Services.GetService<TaskService>()
             ?? throw new InvalidOperationException(AppResources.TaskServiceRequired);
         BindingContext = this;
+#if WINDOWS
+        Loaded += AttachShortcuts;
+        Unloaded += DetachShortcuts;
+#endif
         TitleLabel.Text = GetTitle(Filter);
         NewTaskDatePicker.Date = DateTime.Today;
         NewTaskTimePicker.Time = DateTime.Now.TimeOfDay;
@@ -63,9 +162,17 @@ public partial class TaskListView : ContentView
 
     private async void OnAddTaskClicked(object? sender, EventArgs e)
     {
+        if (!CreateTaskButton.IsEnabled)
+            return;
         var text = NewTaskEntry.Text?.Trim();
         if (string.IsNullOrWhiteSpace(text))
+        {
+            ValidationLabel.Text = AppResources.TaskNameRequired;
+            ValidationLabel.IsVisible = true;
+            NewTaskEntry.Focus();
             return;
+        }
+        ValidationLabel.IsVisible = false;
 
         var description = NewTaskDescriptionEditor.Text?.Trim();
         var priority = Enum.IsDefined(typeof(TaskPriority), NewTaskPriorityPicker.SelectedIndex)
@@ -74,16 +181,63 @@ public partial class TaskListView : ContentView
         var dueAt = (NewTaskDatePicker.Date?.Date ?? DateTime.Today)
             + (NewTaskTimePicker.Time ?? DateTime.Now.TimeOfDay);
 
-        TaskCategory? category = NewTaskCategoryPicker.SelectedIndex > 0 ? (TaskCategory)(NewTaskCategoryPicker.SelectedIndex - 1) : null;
-        var task = await _taskService.AddAsync(text, description, priority, dueAt, category);
-        Tasks.Add(task);
+        var categoryIndex = NewTaskCategoryPicker.SelectedIndex;
+        TaskCategory? category = categoryIndex > 0 && categoryIndex < CategoryOptions.Count
+            ? (TaskCategory)(categoryIndex - 1) : null;
+        TaskItem task;
+        CreateTaskButton.IsEnabled = false;
+        try
+        {
+            if (_editingTask is null)
+            {
+                task = await _taskService.AddAsync(text, description, priority, dueAt, category);
+                Tasks.Add(task);
+            }
+            else
+            {
+                var original = _editingTask;
+                var draft = new TaskItem
+                {
+                    Id = original.Id, UserAccountId = original.UserAccountId,
+                    CreatedAt = original.CreatedAt, IsCompleted = original.IsCompleted,
+                    Text = text, Description = description, Priority = priority, DueAt = dueAt, Category = category,
+                    ReminderSentForDueAt = original.ReminderSentForDueAt,
+                    ReminderPendingForDueAt = original.ReminderPendingForDueAt,
+                    ReminderSnoozedUntil = original.ReminderSnoozedUntil,
+                    ReminderDismissedForDueAt = original.ReminderDismissedForDueAt
+                };
+                await _taskService.UpdateAsync(draft);
+                original.Text = draft.Text;
+                original.Description = draft.Description;
+                original.Priority = draft.Priority;
+                original.DueAt = draft.DueAt;
+                original.Category = draft.Category;
+                original.ReminderSentForDueAt = draft.ReminderSentForDueAt;
+                original.ReminderPendingForDueAt = draft.ReminderPendingForDueAt;
+                original.ReminderSnoozedUntil = draft.ReminderSnoozedUntil;
+                original.ReminderDismissedForDueAt = draft.ReminderDismissedForDueAt;
+                task = original;
+            }
+        }
+        catch
+        {
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+            if (page is not null)
+                await page.DisplayAlertAsync(AppResources.TaskSaveFailedTitle, AppResources.TaskSaveFailedMessage, AppResources.OkButton);
+            return;
+        }
+        finally
+        {
+            CreateTaskButton.IsEnabled = true;
+        }
+        QuickTaskEntry.Text = string.Empty;
         NewTaskEntry.Text = string.Empty;
         NewTaskDescriptionEditor.Text = string.Empty;
         NewTaskPriorityPicker.SelectedIndex = 0;
         NewTaskDatePicker.Date = DateTime.Today;
         NewTaskTimePicker.Time = DateTime.Now.TimeOfDay;
         RefreshDisplay();
-        SimpleLogger.Log(string.Format(AppResources.TaskAddedLog, task.Text, task.Id));
+        CloseComposer();
     }
 
     private async void OnTaskCompletionChanged(object? sender, CheckedChangedEventArgs e)
@@ -152,51 +306,16 @@ public partial class TaskListView : ContentView
 
     private void OnTaskDoubleTapped(object? sender, EventArgs e)
     {
-        if (sender is not BindableObject { BindingContext: TaskItem task })
+        if (IsComposerExpanded || sender is not BindableObject { BindingContext: TaskItem task })
             return;
-
-        if (!_editBackups.ContainsKey(task))
-        {
-            _editBackups[task] = new TaskBackup(
-                task.Text,
-                task.Description,
-                task.DueAt,
-                task.Priority,
-                task.IsCompleted,
-                task.Category);
-        }
-
-        task.IsEditing = true;
-    }
-
-    private async void OnSaveClicked(object? sender, EventArgs e)
-    {
-        if (sender is not Button { BindingContext: TaskItem task })
-            return;
-
-        await _taskService.UpdateAsync(task);
-        _editBackups.Remove(task);
-        task.IsEditing = false;
-        SimpleLogger.Log(string.Format(AppResources.TaskEditedLog, task.Text, task.Id));
-        RefreshDisplay();
-    }
-
-    private void OnCancelClicked(object? sender, EventArgs e)
-    {
-        if (sender is not Button { BindingContext: TaskItem task })
-            return;
-
-        if (_editBackups.Remove(task, out var backup))
-        {
-            task.Text = backup.Text;
-            task.Description = backup.Description;
-            task.DueAt = backup.DueAt;
-            task.Priority = backup.Priority;
-            task.IsCompleted = backup.IsCompleted;
-            task.Category = backup.Category;
-        }
-
-        task.IsEditing = false;
+        _editingTask = task;
+        NewTaskEntry.Text = task.Text;
+        NewTaskDescriptionEditor.Text = task.Description;
+        NewTaskPriorityPicker.SelectedIndex = (int)task.Priority;
+        NewTaskDatePicker.Date = task.DueAt.Date;
+        NewTaskTimePicker.Time = task.DueAt.TimeOfDay;
+        NewTaskCategoryPicker.SelectedIndex = task.CategoryIndex;
+        OpenComposer();
     }
 
     private void OnDescriptionToggleTapped(object? sender, EventArgs e)
@@ -229,15 +348,6 @@ public partial class TaskListView : ContentView
             label.Dispatcher.Dispatch(() => OnDescriptionLabelSizeChanged(label, EventArgs.Empty));
     }
 
-    private void OnPrioritySelectClicked(object? sender, EventArgs e)
-    {
-        if (sender is not Button { BindingContext: TaskItem task, CommandParameter: string value })
-            return;
-
-        if (int.TryParse(value, out var index) && Enum.IsDefined(typeof(TaskPriority), index))
-            task.Priority = (TaskPriority)index;
-    }
-
     private void RefreshDisplay()
     {
         IEnumerable<TaskItem> filteredTasks = Filter switch
@@ -266,11 +376,4 @@ public partial class TaskListView : ContentView
         _ => AppResources.MyDay
     };
 
-    private sealed record TaskBackup(
-        string? Text,
-        string? Description,
-        DateTime DueAt,
-        TaskPriority Priority,
-        bool IsCompleted,
-        TaskCategory? Category);
 }

@@ -95,4 +95,10 @@
   <data name="CategoryShopping" xml:space="preserve"><value>Покупки</value></data>
   <data name="CategoryStudy" xml:space="preserve"><value>Учёба</value></data>
   <data name="CategoryPersonal" xml:space="preserve"><value>Личное</value></data>
+  <data name="TaskOptions" xml:space="preserve"><value>Параметры задачи</value></data>
+  <data name="HideTaskOptions" xml:space="preserve"><value>Скрыть параметры</value></data>
+  <data name="EditTaskAction" xml:space="preserve"><value>Изменить</value></data>
+  <data name="EmptyTasksTitle" xml:space="preserve"><value>Здесь пока спокойно</value></data>
+  <data name="EmptyTasksHint" xml:space="preserve"><value>Добавьте задачу выше — начните с одного небольшого дела.</value></data>
+  <data name="TaskNameRequired" xml:space="preserve"><value>Введите название задачи.</value></data>
 </root>
