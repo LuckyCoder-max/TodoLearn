@@ -14,6 +14,7 @@ namespace TodoLearn.Models
     public class TaskItem : INotifyPropertyChanged
     {
         public int Id { get; set; }
+        public int? UserAccountId { get; set; }
         public TaskItem()
         {
             CreatedAt = DateTime.Now;

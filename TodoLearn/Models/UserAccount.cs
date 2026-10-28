@@ -11,4 +11,6 @@ public sealed class UserAccount
     public string PasswordSalt { get; set; } = string.Empty;
 
     public ICollection<ExternalLogin> ExternalLogins { get; set; } = new List<ExternalLogin>();
+
+    public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
 }

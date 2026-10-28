@@ -22,6 +22,12 @@ namespace TodoLearn
             modelBuilder.Entity<TaskItem>().Ignore(t => t.IsDetailsVisible);
             modelBuilder.Entity<TaskItem>().Ignore(t => t.IsDescriptionExpanded);
             modelBuilder.Entity<TaskItem>().Ignore(t => t.CanExpandDescription);
+            modelBuilder.Entity<TaskItem>()
+                .HasOne<UserAccount>()
+                .WithMany(user => user.Tasks)
+                .HasForeignKey(task => task.UserAccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<TaskItem>().HasIndex(task => task.UserAccountId);
 
             modelBuilder.Entity<UserAccount>(entity =>
             {

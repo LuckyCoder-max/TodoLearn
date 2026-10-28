@@ -62,6 +62,7 @@ namespace ToDoListApp
                     """);
                 db.Database.ExecuteSqlRaw("CREATE UNIQUE INDEX IF NOT EXISTS \"IX_ExternalLogins_Provider_Subject\" ON \"ExternalLogins\" (\"Provider\", \"Subject\");");
                 EnsureTaskDescriptionColumn(db);
+                EnsureTaskAccountColumn(db);
             }
 
             return app;
@@ -75,6 +76,17 @@ namespace ToDoListApp
 
             if (!columnExists)
                 db.Database.ExecuteSqlRaw("ALTER TABLE \"Tasks\" ADD COLUMN \"Description\" TEXT NULL;");
+        }
+        private static void EnsureTaskAccountColumn(AppDbContext db)
+        {
+            var columnExists = db.Database
+                .SqlQueryRaw<long>("SELECT COUNT(*) AS Value FROM pragma_table_info('Tasks') WHERE name = 'UserAccountId'")
+                .Single() > 0;
+
+            if (!columnExists)
+                db.Database.ExecuteSqlRaw("ALTER TABLE \"Tasks\" ADD COLUMN \"UserAccountId\" INTEGER NULL REFERENCES \"UserAccounts\" (\"Id\") ON DELETE CASCADE;");
+
+            db.Database.ExecuteSqlRaw("CREATE INDEX IF NOT EXISTS \"IX_Tasks_UserAccountId\" ON \"Tasks\" (\"UserAccountId\");");
         }
     }
 }

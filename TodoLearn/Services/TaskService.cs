@@ -6,27 +6,37 @@ namespace TodoLearn.Services;
 public sealed class TaskService
 {
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
+    private readonly AuthSessionService _authSessionService;
     private readonly SemaphoreSlim _loadLock = new(1, 1);
     private List<TaskItem>? _tasks;
+    private int? _cachedAccountId;
 
-    public TaskService(IDbContextFactory<AppDbContext> dbFactory)
+    public TaskService(IDbContextFactory<AppDbContext> dbFactory, AuthSessionService authSessionService)
     {
         _dbFactory = dbFactory;
+        _authSessionService = authSessionService;
     }
 
     public async Task<IReadOnlyList<TaskItem>> GetTasksAsync()
     {
-        if (_tasks is not null)
+        var accountId = GetCurrentAccountId();
+        if (_tasks is not null && _cachedAccountId == accountId)
             return _tasks;
 
         await _loadLock.WaitAsync();
         try
         {
-            if (_tasks is not null)
+            if (_tasks is not null && _cachedAccountId == accountId)
                 return _tasks;
 
             await using var db = await _dbFactory.CreateDbContextAsync();
-            _tasks = await db.Tasks.OrderBy(task => task.CreatedAt).ToListAsync();
+            await db.Database.ExecuteSqlInterpolatedAsync(
+                $"UPDATE \"Tasks\" SET \"UserAccountId\" = {accountId} WHERE \"UserAccountId\" IS NULL;");
+            _tasks = await db.Tasks
+                .Where(task => task.UserAccountId == accountId)
+                .OrderBy(task => task.CreatedAt)
+                .ToListAsync();
+            _cachedAccountId = accountId;
             return _tasks;
         }
         finally
@@ -37,8 +47,10 @@ public sealed class TaskService
 
     public async Task<TaskItem> AddAsync(string text, string? description, TaskPriority priority, DateTime dueAt)
     {
+        var accountId = GetCurrentAccountId();
         var task = new TaskItem
         {
+            UserAccountId = accountId,
             Text = text,
             Description = string.IsNullOrWhiteSpace(description) ? null : description,
             Priority = priority,
@@ -48,29 +60,53 @@ public sealed class TaskService
         db.Tasks.Add(task);
         await db.SaveChangesAsync();
 
-        _tasks?.Add(task);
+        if (_cachedAccountId == accountId)
+            _tasks?.Add(task);
         return task;
     }
 
     public async Task UpdateAsync(TaskItem task)
     {
+        var accountId = GetCurrentAccountId();
+        if (task.UserAccountId != accountId)
+            return;
+
         await using var db = await _dbFactory.CreateDbContextAsync();
-        db.Tasks.Update(task);
+        var storedTask = await db.Tasks.FirstOrDefaultAsync(item =>
+            item.Id == task.Id && item.UserAccountId == accountId);
+        if (storedTask is null)
+            return;
+
+        db.Entry(storedTask).CurrentValues.SetValues(task);
         await db.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(TaskItem task)
     {
+        var accountId = GetCurrentAccountId();
+        if (task.UserAccountId != accountId)
+            return;
+
         await using var db = await _dbFactory.CreateDbContextAsync();
-        db.Tasks.Remove(task);
+        var storedTask = await db.Tasks.FirstOrDefaultAsync(item =>
+            item.Id == task.Id && item.UserAccountId == accountId);
+        if (storedTask is null)
+            return;
+
+        db.Tasks.Remove(storedTask);
         await db.SaveChangesAsync();
         _tasks?.Remove(task);
     }
 
     public async Task ClearCompletedAsync()
     {
+        var accountId = GetCurrentAccountId();
         await using var db = await _dbFactory.CreateDbContextAsync();
-        await db.Tasks.Where(task => task.IsCompleted).ExecuteDeleteAsync();
+        var tasks = db.Tasks.Where(task => task.UserAccountId == accountId && task.IsCompleted);
+        await tasks.ExecuteDeleteAsync();
         _tasks?.RemoveAll(task => task.IsCompleted);
     }
+
+    private int GetCurrentAccountId() => _authSessionService.CurrentAccountId
+        ?? throw new InvalidOperationException("An authenticated account is required to access tasks.");
 }
