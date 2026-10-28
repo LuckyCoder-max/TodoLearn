@@ -68,10 +68,13 @@ public sealed class AuthService
         return new SignInResult(false, RegisterFailedAttempt(normalizedUsername));
     }
 
-    public async Task<bool> AccountExistsAsync(string username)
+    public async Task<int?> GetAccountIdAsync(string username)
     {
         await using var db = await _dbFactory.CreateDbContextAsync();
-        return await db.UserAccounts.AnyAsync(account => account.Username == username);
+        return await db.UserAccounts
+            .Where(account => account.Username == username)
+            .Select(account => (int?)account.Id)
+            .SingleOrDefaultAsync();
     }
 
     public async Task<string> GetOrCreateExternalAccountAsync(string provider, string subject, string email)

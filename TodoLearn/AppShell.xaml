@@ -12,7 +12,29 @@
     </Shell.FlyoutHeader>
 
     <Shell.FlyoutFooter>
-        <Button Text="{x:Static strings:AppResources.LogoutButton}" Clicked="OnLogoutClicked" Margin="16" />
+        <Border Margin="16,8,16,16"
+                Padding="14,12"
+                Stroke="{AppThemeBinding Light={StaticResource Gray200Brush}, Dark={StaticResource Gray600Brush}}"
+                Background="{AppThemeBinding Light={StaticResource WhiteBrush}, Dark={StaticResource Gray900Brush}}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+            </Border.StrokeShape>
+            <VerticalStackLayout Spacing="10">
+                <Label x:Name="CurrentUsernameLabel"
+                       FontSize="15"
+                       FontAttributes="Bold"
+                       LineBreakMode="TailTruncation"
+                       MaxLines="1"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+                <Button Text="{x:Static strings:AppResources.LogoutButton}"
+                        Clicked="OnLogoutClicked"
+                        Margin="0"
+                        Padding="12,8"
+                        CornerRadius="8"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}"
+                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+            </VerticalStackLayout>
+        </Border>
     </Shell.FlyoutFooter>
 
     <FlyoutItem Title="{x:Static strings:AppResources.MyDay}">

@@ -15,6 +15,9 @@ namespace TodoLearn
             _inactivityService = IPlatformApplication.Current?.Services.GetService<InactivityService>();
             _authSessionService = IPlatformApplication.Current?.Services.GetService<AuthSessionService>();
 
+            CurrentUsernameLabel.Text = _authSessionService?.CurrentUsername ?? string.Empty;
+            CurrentUsernameLabel.IsVisible = !string.IsNullOrWhiteSpace(CurrentUsernameLabel.Text);
+
             if (_inactivityService != null)
             {
                 this.Navigated += (s, e) => OnUserActivity();
