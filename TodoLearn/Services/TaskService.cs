@@ -91,13 +91,15 @@ public sealed class TaskService : ITaskWriter
 
         db.Entry(storedTask).CurrentValues.SetValues(task);
         var desiredSteps = task.Steps.Where(step => !string.IsNullOrWhiteSpace(step.Text)).ToList();
-        foreach (var removed in storedTask.Steps.Where(step => !desiredSteps.Any(desired => desired.Id == step.Id)).ToList())
+        var storedStepsById = storedTask.Steps.ToDictionary(step => step.Id);
+        var desiredIds = desiredSteps.Select(step => step.Id).ToHashSet();
+        foreach (var removed in storedStepsById.Values.Where(step => !desiredIds.Contains(step.Id)))
             db.Remove(removed);
         var savedSteps = new List<(TaskStep Draft, TaskStep Stored)>();
         for (var index = 0; index < desiredSteps.Count; index++)
         {
             var draft = desiredSteps[index];
-            var stored = draft.Id == 0 ? null : storedTask.Steps.SingleOrDefault(step => step.Id == draft.Id);
+            storedStepsById.TryGetValue(draft.Id, out var stored);
             if (draft.Id != 0 && stored is null)
                 throw new InvalidOperationException("The subtask does not belong to this task.");
             if (stored is null)

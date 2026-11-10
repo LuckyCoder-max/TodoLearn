@@ -44,4 +44,20 @@ public sealed class TaskEditorStorageTests : DatabaseTest
         Assert.That(stored.DueAt.Date, Is.EqualTo(Clock.Now.AddDays(1).Date));
     }
 
+    [Test]
+    public async Task BulkStepEditsPreserveOrderAndIdentityAfterRemovalAndAppend()
+    {
+        var task = await AddTask(steps: Enumerable.Range(0, 100).Select(index => new TaskStep { Text = $"Step {index}" }));
+        var draft = await Reload(task.Id);
+        var retained = draft.Steps.Skip(50).Reverse().ToList();
+        draft.Steps.Clear();
+        foreach (var step in retained)
+            draft.Steps.Add(step);
+        draft.Steps.Add(new TaskStep { Text = "Ship" });
+        await Tasks.UpdateAsync(draft);
+        var stored = await Reload(task.Id);
+        Assert.That(stored.Steps.Select(step => step.Text), Is.EqualTo(retained.Select(step => step.Text).Append("Ship")));
+        Assert.That(stored.Steps.Take(50).Select(step => step.Id), Is.EqualTo(retained.Select(step => step.Id)));
+        Assert.That(stored.Steps.Select(step => step.Position), Is.EqualTo(Enumerable.Range(0, 51)));
+    }
 }
