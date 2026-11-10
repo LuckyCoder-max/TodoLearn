@@ -87,3 +87,6 @@ External account mapping tests do not prove that Google OAuth itself works.
 
 `SubtaskChecks/` is the older console smoke-check harness. Its scenarios are
 also covered by the NUnit suite; use `TodoLearn.Tests` for ongoing development.
+
+The editor refactoring adds pure `TaskEditorViewModel` tests and SQLite editor
+integration tests. See `docs/REFACTORING.md` for the current architectural scope.
