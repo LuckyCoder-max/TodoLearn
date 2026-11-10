@@ -98,6 +98,9 @@
   <data name="TaskOptions" xml:space="preserve"><value>Task options</value></data>
   <data name="HideTaskOptions" xml:space="preserve"><value>Hide options</value></data>
   <data name="EditTaskAction" xml:space="preserve"><value>Edit</value></data>
+  <data name="TaskTitleLabel" xml:space="preserve"><value>Task name</value></data>
+  <data name="CloseTaskForm" xml:space="preserve"><value>Close task form</value></data>
+  <data name="SaveShortcutHint" xml:space="preserve"><value>Ctrl + Enter to save</value></data>
   <data name="EmptyTasksTitle" xml:space="preserve"><value>Nothing here yet</value></data>
   <data name="EmptyTasksHint" xml:space="preserve"><value>Add a task above. Start with one small thing.</value></data>
   <data name="TaskNameRequired" xml:space="preserve"><value>Enter a task name.</value></data>
@@ -125,5 +128,6 @@
   <data name="LightTheme" xml:space="preserve"><value>Light</value></data>
   <data name="DarkTheme" xml:space="preserve"><value>Dark</value></data>
   <data name="Done" xml:space="preserve"><value>Done</value></data>
+  <data name="AddTaskAction" xml:space="preserve"><value>Add task</value></data>
   <data name="DueTimeLabel" xml:space="preserve"><value>Due time · 24-hour</value></data>
 </root>

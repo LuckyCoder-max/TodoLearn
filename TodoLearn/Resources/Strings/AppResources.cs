@@ -5,7 +5,11 @@ namespace TodoLearn.Resources.Strings;
 
 public static class AppResources
 {
+    public static string TaskTitleLabel => GetString(nameof(TaskTitleLabel));
+    public static string CloseTaskForm => GetString(nameof(CloseTaskForm));
+    public static string SaveShortcutHint => GetString(nameof(SaveShortcutHint));
     public static string DueTimeLabel => GetString(nameof(DueTimeLabel));
+    public static string AddTaskAction => GetString(nameof(AddTaskAction));
     public static string Settings => GetString(nameof(Settings));
     public static string Appearance => GetString(nameof(Appearance));
     public static string ThemeDescription => GetString(nameof(ThemeDescription));

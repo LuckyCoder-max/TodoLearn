@@ -3,33 +3,60 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:strings="clr-namespace:TodoLearn.Resources.Strings"
              x:Name="ComposerRoot" x:Class="TodoLearn.Views.TaskComposerView">
-        <Grid Padding="24" ZIndex="10" BackgroundColor="#99000000" IsVisible="{Binding IsComposerExpanded}">
-        <Border Padding="24" WidthRequest="480" MaximumWidthRequest="520" MaximumHeightRequest="600" HorizontalOptions="Center" VerticalOptions="Center" StrokeThickness="0" Background="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource SurfaceDark}}">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="12" />
-            </Border.StrokeShape>
-            <ScrollView>
-            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="12">
-                <Label Text="{Binding ComposerTitle}" FontSize="22" FontAttributes="Bold" />
-                <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="8">
-                    <Entry x:Name="NewTaskEntry" x:FieldModifier="internal" Grid.Column="0" Placeholder="{x:Static strings:AppResources.AddTaskPlaceholder}" ReturnType="Next" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" PlaceholderColor="{StaticResource Gray500}" />
+    <Grid Padding="24" ZIndex="10">
+        <BoxView x:Name="Scrim" Margin="-24" Color="#99000000" />
+        <Border x:Name="Dialog" Padding="24" HorizontalOptions="Center" VerticalOptions="Center"
+                Stroke="{AppThemeBinding Light={StaticResource OutlineLight}, Dark={StaticResource OutlineDark}}"
+                StrokeThickness="1" StrokeShape="RoundRectangle 16"
+                Background="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource SurfaceDark}}">
+            <Grid RowDefinitions="Auto,*,Auto" RowSpacing="16">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <Label Text="{Binding ComposerTitle}" FontSize="22" FontAttributes="Bold" VerticalOptions="Center" />
+                    <Button Grid.Column="1" Text="×" FontSize="22" WidthRequest="40" Padding="0"
+                            Style="{StaticResource QuietActionButton}" Clicked="OnCancelClicked"
+                            ToolTipProperties.Text="{x:Static strings:AppResources.CloseTaskForm}"
+                            SemanticProperties.Description="{x:Static strings:AppResources.CloseTaskForm}" />
                 </Grid>
-                <Editor x:Name="NewTaskDescriptionEditor" x:FieldModifier="internal" Grid.Row="2" IsVisible="{Binding IsComposerExpanded}" Placeholder="{x:Static strings:AppResources.DescriptionPlaceholder}" HeightRequest="64" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" PlaceholderColor="{StaticResource Gray500}" />
-                <Grid Grid.Row="3" IsVisible="{Binding IsComposerExpanded}" ColumnDefinitions="Auto, *" ColumnSpacing="12">
-                    <Label Grid.Column="0" Text="{x:Static strings:AppResources.PriorityLabel}" VerticalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
-                    <Picker x:Name="NewTaskPriorityPicker" x:FieldModifier="internal" Grid.Column="1" ItemsSource="{Binding PriorityOptions}" SelectedIndex="0" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
-                </Grid>
-                <Label Grid.Row="4" IsVisible="{Binding IsComposerExpanded}" Text="{x:Static strings:AppResources.DueLabel}" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
-                <Grid Grid.Row="5" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
-                    <DatePicker x:Name="NewTaskDatePicker" x:FieldModifier="internal" Format="{x:Static strings:AppResources.DatePickerFormat}" />
-                    <Label Grid.Row="1" Text="{x:Static strings:AppResources.DueTimeLabel}" FontSize="13" />
-                    <TimePicker x:Name="NewTaskTimePicker" x:FieldModifier="internal" Grid.Row="2" Format="{x:Static strings:AppResources.TimePickerFormat24Hour}" />
-                </Grid>
-                <Grid Grid.Row="6" ColumnDefinitions="Auto, *" ColumnSpacing="12">
-                    <Label Text="{x:Static strings:AppResources.CategoryLabel}" VerticalOptions="Center" />
-                    <Picker x:Name="NewTaskCategoryPicker" x:FieldModifier="internal" Grid.Column="1" ItemsSource="{Binding CategoryOptions}" SelectedIndex="0" />
-                </Grid>
-                        <VerticalStackLayout Grid.Row="7" Spacing="8">
+                <ScrollView x:Name="FieldsScroll" Grid.Row="1">
+                    <VerticalStackLayout Spacing="16" Padding="0,0,4,4">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static strings:AppResources.TaskTitleLabel}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                            <Entry x:Name="NewTaskEntry" x:FieldModifier="internal" Placeholder="{x:Static strings:AppResources.AddTaskPlaceholder}"
+                                   ReturnType="Next" Completed="OnTitleCompleted" TextChanged="OnTitleChanged"
+                                   SemanticProperties.Description="{x:Static strings:AppResources.TaskTitleLabel}" />
+                            <Label x:Name="ValidationLabel" x:FieldModifier="internal" IsVisible="False" FontSize="12"
+                                   TextColor="{StaticResource PriorityHighColor}" />
+                        </VerticalStackLayout>
+                        <Editor x:Name="NewTaskDescriptionEditor" x:FieldModifier="internal" Placeholder="{x:Static strings:AppResources.DescriptionPlaceholder}"
+                                HeightRequest="80" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
+                                PlaceholderColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"
+                                BackgroundColor="Transparent" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="{x:Static strings:AppResources.PriorityLabel}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                                <Picker x:Name="NewTaskPriorityPicker" x:FieldModifier="internal" ItemsSource="{Binding PriorityOptions}" SelectedIndex="0"
+                                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
+                                        SemanticProperties.Description="{x:Static strings:AppResources.PriorityLabel}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Label Text="{x:Static strings:AppResources.CategoryLabel}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                                <Picker x:Name="NewTaskCategoryPicker" x:FieldModifier="internal" ItemsSource="{Binding CategoryOptions}" SelectedIndex="0"
+                                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
+                                        SemanticProperties.Description="{x:Static strings:AppResources.CategoryLabel}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static strings:AppResources.DueLabel}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                            <DatePicker x:Name="NewTaskDatePicker" x:FieldModifier="internal" Format="{x:Static strings:AppResources.DatePickerFormat}"
+                                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static strings:AppResources.DueTimeLabel}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                            <TimePicker x:Name="NewTaskTimePicker" x:FieldModifier="internal" Format="{x:Static strings:AppResources.TimePickerFormat24Hour}"
+                                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
+                                        SemanticProperties.Description="{x:Static strings:AppResources.DueTimeLabel}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="8">
                             <Label Text="{x:Static strings:AppResources.Subtasks}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
                             <VerticalStackLayout Spacing="4" BindableLayout.ItemsSource="{Binding DraftSteps, Source={x:Reference ComposerRoot}}">
                                 <BindableLayout.ItemTemplate>
@@ -37,7 +64,7 @@
                                         <Grid ColumnDefinitions="32,*,40" ColumnSpacing="6">
                                             <CheckBox IsChecked="{Binding IsCompleted, Mode=TwoWay}" />
                                             <Entry Grid.Column="1" Text="{Binding Text, Mode=TwoWay}" Placeholder="{x:Static strings:AppResources.StepPlaceholder}" />
-                                            <Button Grid.Column="2" Text="×" Padding="0" BackgroundColor="Transparent" Clicked="OnRemoveStepClicked"
+                                            <Button Grid.Column="2" Text="×" Padding="0" Style="{StaticResource QuietActionButton}" Clicked="OnRemoveStepClicked"
                                                     SemanticProperties.Description="{x:Static strings:AppResources.RemoveStep}" />
                                         </Grid>
                                     </DataTemplate>
@@ -45,16 +72,22 @@
                             </VerticalStackLayout>
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                 <Entry x:Name="StepEntry" Placeholder="{x:Static strings:AppResources.StepPlaceholder}" Completed="OnAddStepClicked" />
-                                <Button Grid.Column="1" Text="{x:Static strings:AppResources.AddStep}" BackgroundColor="Transparent" Clicked="OnAddStepClicked" />
+                                <Button Grid.Column="1" Text="{x:Static strings:AppResources.AddStep}" Style="{StaticResource QuietActionButton}" Clicked="OnAddStepClicked" />
                             </Grid>
                         </VerticalStackLayout>
-                <Label x:Name="ValidationLabel" x:FieldModifier="internal" Grid.Row="8" IsVisible="False" TextColor="{StaticResource PriorityHighColor}" FontSize="12" />
-                <HorizontalStackLayout Grid.Row="9" Spacing="12" HorizontalOptions="End" Margin="0,8,0,0">
-                    <Button Text="{x:Static strings:AppResources.CancelButton}" Clicked="OnCancelClicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
-                    <Button x:Name="CreateTaskButton" x:FieldModifier="internal" Text="{Binding ComposerSaveText}" Clicked="OnSaveClicked" BackgroundColor="{StaticResource Primary}" TextColor="White" />
-                </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+                <Grid Grid.Row="2" RowDefinitions="Auto,Auto" RowSpacing="16">
+                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource OutlineLight}, Dark={StaticResource OutlineDark}}" />
+                    <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                        <Label Text="{x:Static strings:AppResources.SaveShortcutHint}" FontSize="11" VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                        <Button Grid.Column="1" Text="{x:Static strings:AppResources.CancelButton}" Style="{StaticResource QuietActionButton}" Clicked="OnCancelClicked" />
+                        <Button x:Name="CreateTaskButton" x:FieldModifier="internal" Grid.Column="2" Text="{Binding ComposerSaveText}"
+                                Style="{StaticResource PrimaryActionButton}" Clicked="OnSaveClicked" />
+                    </Grid>
+                </Grid>
             </Grid>
-            </ScrollView>
         </Border>
-        </Grid>
+    </Grid>
 </ContentView>
