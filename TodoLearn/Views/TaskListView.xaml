@@ -18,7 +18,7 @@
             </Grid>
         </Border>
 
-        <CollectionView x:Name="TaskCollection" Grid.Row="2" ItemsSource="{Binding DisplayTasks}" SelectionMode="None">
+        <CollectionView x:Name="TaskCollection" Grid.Row="2" ItemsSource="{Binding DisplayTasks}" SelectionMode="None" ItemsUpdatingScrollMode="KeepScrollOffset">
             <CollectionView.EmptyView>
                 <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Padding="24,48" Spacing="10">
                     <Label Text="{x:Static strings:AppResources.EmptyTasksTitle}" FontSize="20" HorizontalTextAlignment="Center" />

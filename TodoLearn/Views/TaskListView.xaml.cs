@@ -107,7 +107,7 @@ public partial class TaskListView : ContentView
 #endif
 
     public ObservableCollection<TaskItem> Tasks { get; } = new();
-    public ObservableCollection<TaskItem> DisplayTasks { get; } = new();
+    public ObservableCollection<TaskItem> DisplayTasks { get; private set; } = new();
     public IReadOnlyList<string> PriorityOptions { get; } = new[]
     {
         AppResources.PriorityLow,
@@ -147,9 +147,13 @@ public partial class TaskListView : ContentView
 
     public async Task LoadTasksAsync()
     {
-        Tasks.Clear();
-        foreach (var task in await _taskService.GetTasksAsync())
-            Tasks.Add(task);
+        var tasks = await _taskService.GetTasksAsync();
+        if (!Tasks.SequenceEqual(tasks))
+        {
+            Tasks.Clear();
+            foreach (var task in tasks)
+                Tasks.Add(task);
+        }
 
         RefreshDisplay();
     }
@@ -254,12 +258,12 @@ public partial class TaskListView : ContentView
         try
         {
             await _taskService.UpdateAsync(task);
-            RefreshDisplay();
+            UpdateClearCompletedButton();
         }
         catch
         {
             task.IsCompleted = previousValue;
-            RefreshDisplay();
+            UpdateClearCompletedButton();
 
             var page = Application.Current?.Windows.FirstOrDefault()?.Page;
             if (page is not null)
@@ -351,22 +355,39 @@ public partial class TaskListView : ContentView
 
     private void RefreshDisplay()
     {
-        IEnumerable<TaskItem> filteredTasks = Filter switch
+        var orderedTasks = TodoLearn.Helpers.TaskQuery.Select(Tasks, Filter, DateTime.Now, _categoryView, _selectedCategory);
+        if (DisplayTasks.SequenceEqual(orderedTasks))
         {
-            FilterType.Important => Tasks.Where(task => task.Priority == TaskPriority.High),
-            FilterType.Planned => Tasks.Where(task => task.DueAt > DateTime.Now),
-            FilterType.All => Tasks,
-            _ => Tasks.Where(task => task.DueAt.Date == DateTime.Now.Date)
-        };
+            UpdateClearCompletedButton();
+            return;
+        }
+        if (DisplayTasks.Count == 0)
+        {
+            DisplayTasks = new ObservableCollection<TaskItem>(orderedTasks);
+            OnPropertyChanged(nameof(DisplayTasks));
+            UpdateClearCompletedButton();
+            return;
+        }
+        var visibleTasks = orderedTasks.ToHashSet();
+        for (var index = DisplayTasks.Count - 1; index >= 0; index--)
+        {
+            if (!visibleTasks.Contains(DisplayTasks[index]))
+                DisplayTasks.RemoveAt(index);
+        }
 
-        if (_categoryView)
-            filteredTasks = Tasks.Where(task => task.Category == _selectedCategory);
+        for (var index = 0; index < orderedTasks.Count; index++)
+        {
+            var task = orderedTasks[index];
+            if (index < DisplayTasks.Count && ReferenceEquals(DisplayTasks[index], task))
+                continue;
+            var currentIndex = DisplayTasks.IndexOf(task);
+            if (currentIndex < 0)
+                DisplayTasks.Insert(index, task);
+            else if (currentIndex != index)
+                DisplayTasks.Move(currentIndex, index);
+        }
 
-        DisplayTasks.Clear();
-        foreach (var task in filteredTasks.OrderBy(task => task.IsCompleted).ThenBy(task => task.DueAt))
-            DisplayTasks.Add(task);
-
-        ClearCompletedButton.IsEnabled = Tasks.Any(task => task.IsCompleted && (!_categoryView || task.Category == _selectedCategory));
+        UpdateClearCompletedButton();
     }
 
     private static string GetTitle(FilterType filter) => filter switch
@@ -416,5 +437,10 @@ public partial class TaskListView : ContentView
             OnTaskDoubleTapped(button, EventArgs.Empty);
         else if (action == AppResources.DeleteButton)
             OnDeleteClicked(new Button { CommandParameter = task }, EventArgs.Empty);
+    }
+
+    private void UpdateClearCompletedButton()
+    {
+        ClearCompletedButton.IsEnabled = Tasks.Any(task => task.IsCompleted && (!_categoryView || task.Category == _selectedCategory));
     }
 }
