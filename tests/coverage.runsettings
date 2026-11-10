@@ -1,0 +1,16 @@
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <IncludeTestAssembly>true</IncludeTestAssembly>
+          <Include>[TodoLearn.Tests]TodoLearn.*</Include>
+          <Exclude>[TodoLearn.Tests]TodoLearn.Tests.*</Exclude>
+          <ExcludeByFile>**/Resources/Strings/AppResources.cs</ExcludeByFile>
+          <SingleHit>false</SingleHit>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
