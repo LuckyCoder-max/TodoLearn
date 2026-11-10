@@ -156,7 +156,7 @@ public sealed class TaskReminderService
         {
 #if WINDOWS
             var message = string.Join(Environment.NewLine, reminders.Select(task =>
-                string.Format(CultureInfo.CurrentCulture, AppResources.TaskReminderMessage, task.Text, task.DueAt.ToString("dd.MM.yyyy HH:mm", CultureInfo.CurrentCulture))));
+                string.Format(CultureInfo.CurrentCulture, AppResources.TaskReminderMessage, task.Text, task.DueAt.ToString("dd MMM yyyy, HH:mm", CultureInfo.CurrentCulture))));
 
             try
             {

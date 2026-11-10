@@ -13,6 +13,17 @@ namespace ToDoListApp
     {
         public static MauiApp CreateMauiApp()
         {
+            var culture = System.Globalization.CultureInfo.GetCultureInfo("en-GB");
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
+            System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
+            System.Globalization.CultureInfo.CurrentCulture = culture;
+            System.Globalization.CultureInfo.CurrentUICulture = culture;
+#if WINDOWS
+            Microsoft.Maui.Handlers.DatePickerHandler.Mapper.AppendToMapping("EnglishLanguage", (handler, _) =>
+                handler.PlatformView.Language = "en-GB");
+            Microsoft.Maui.Handlers.TimePickerHandler.Mapper.AppendToMapping("EnglishLanguage", (handler, _) =>
+                handler.PlatformView.Language = "en-GB");
+#endif
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()

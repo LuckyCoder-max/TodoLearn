@@ -17,6 +17,7 @@ namespace TodoLearn.WinUI
         /// </summary>
         public App()
         {
+            Microsoft.Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-GB";
             this.InitializeComponent();
         }
 

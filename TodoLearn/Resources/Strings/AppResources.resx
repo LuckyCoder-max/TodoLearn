@@ -5,100 +5,101 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="AppName" xml:space="preserve"><value>TodoLearn</value></data>
-  <data name="LoginPageTitle" xml:space="preserve"><value>Вход</value></data>
-  <data name="UsernamePlaceholder" xml:space="preserve"><value>Логин</value></data>
-  <data name="PasswordPlaceholder" xml:space="preserve"><value>Пароль</value></data>
-  <data name="LoginButton" xml:space="preserve"><value>Войти</value></data>
-  <data name="LogoutButton" xml:space="preserve"><value>Выйти из аккаунта</value></data>
-  <data name="RegisterButton" xml:space="preserve"><value>Зарегистрироваться</value></data>
-  <data name="ContinueWithGoogle" xml:space="preserve"><value>Продолжить с Google</value></data>
-  <data name="LoginMethodSeparator" xml:space="preserve"><value>или</value></data>
-  <data name="GoogleAuthFailed" xml:space="preserve"><value>Не удалось войти через Google. Попробуйте ещё раз.</value></data>
-  <data name="GoogleAuthTimeout" xml:space="preserve"><value>Время входа через Google истекло. Попробуйте ещё раз.</value></data>
-  <data name="GoogleAuthBrowserMessage" xml:space="preserve"><value>Код получен. Вернитесь в приложение, чтобы завершить вход.</value></data>
-  <data name="GoogleAuthCancelled" xml:space="preserve"><value>Вход отменён. Можно закрыть это окно.</value></data>
-  <data name="GoogleAuthInvalidResponse" xml:space="preserve"><value>Неверный ответ. Вернитесь в приложение и попробуйте ещё раз.</value></data>
-  <data name="GoogleClientSecretRequired" xml:space="preserve"><value>Google требует client_secret для этого клиента. Задайте переменную среды пользователя TODOLEARN_GOOGLE_CLIENT_SECRET со значением Client secret этого же клиента из Google Cloud Console и полностью перезапустите приложение.</value></data>
-  <data name="InvalidCredentials" xml:space="preserve"><value>Неверный логин или пароль.</value></data>
-  <data name="LoginLocked" xml:space="preserve"><value>Слишком много неудачных попыток. Попробуйте через {0} сек.</value></data>
-  <data name="ApplicationWindowUnavailable" xml:space="preserve"><value>Окно приложения недоступно.</value></data>
-  <data name="LoginFailed" xml:space="preserve"><value>Не удалось выполнить вход. Попробуйте ещё раз.</value></data>
-  <data name="AccountCreated" xml:space="preserve"><value>Аккаунт создан. Теперь войдите.</value></data>
-  <data name="RegistrationFailed" xml:space="preserve"><value>Не удалось сохранить аккаунт. Попробуйте ещё раз.</value></data>
-  <data name="UsernameRequired" xml:space="preserve"><value>Введите логин.</value></data>
-  <data name="UsernameTooLong" xml:space="preserve"><value>Логин не должен быть длиннее {0} символов.</value></data>
-  <data name="PasswordRequired" xml:space="preserve"><value>Введите пароль.</value></data>
-  <data name="PasswordTooShort" xml:space="preserve"><value>Пароль должен содержать минимум {0} символов.</value></data>
-  <data name="UsernameTaken" xml:space="preserve"><value>Этот логин уже занят.</value></data>
-  <data name="SessionExpiredTitle" xml:space="preserve"><value>Сессия завершена</value></data>
-  <data name="SessionExpiredMessage" xml:space="preserve"><value>Время бездействия истекло. Войдите снова.</value></data>
+  <data name="LoginPageTitle" xml:space="preserve"><value>Sign in</value></data>
+  <data name="UsernamePlaceholder" xml:space="preserve"><value>Username</value></data>
+  <data name="PasswordPlaceholder" xml:space="preserve"><value>Password</value></data>
+  <data name="LoginButton" xml:space="preserve"><value>Sign in</value></data>
+  <data name="LogoutButton" xml:space="preserve"><value>Sign out</value></data>
+  <data name="RegisterButton" xml:space="preserve"><value>Create account</value></data>
+  <data name="ContinueWithGoogle" xml:space="preserve"><value>Continue with Google</value></data>
+  <data name="LoginMethodSeparator" xml:space="preserve"><value>or</value></data>
+  <data name="GoogleAuthFailed" xml:space="preserve"><value>Couldn't sign in with Google. Please try again.</value></data>
+  <data name="GoogleAuthTimeout" xml:space="preserve"><value>Google sign-in timed out. Please try again.</value></data>
+  <data name="GoogleAuthBrowserMessage" xml:space="preserve"><value>Authorization code received. Return to the app to finish signing in.</value></data>
+  <data name="GoogleAuthCancelled" xml:space="preserve"><value>Sign-in cancelled. You can close this window.</value></data>
+  <data name="GoogleAuthInvalidResponse" xml:space="preserve"><value>Invalid response. Return to the app and try again.</value></data>
+  <data name="GoogleClientSecretRequired" xml:space="preserve"><value>Google requires a client secret for this OAuth client. Set the TODOLEARN_GOOGLE_CLIENT_SECRET user environment variable to the matching client secret from Google Cloud Console, then restart the app.</value></data>
+  <data name="InvalidCredentials" xml:space="preserve"><value>Incorrect username or password.</value></data>
+  <data name="LoginLocked" xml:space="preserve"><value>Too many unsuccessful attempts. Try again in {0} seconds.</value></data>
+  <data name="ApplicationWindowUnavailable" xml:space="preserve"><value>The application window is unavailable.</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>Couldn't sign in. Please try again.</value></data>
+  <data name="AccountCreated" xml:space="preserve"><value>Account created. You can now sign in.</value></data>
+  <data name="RegistrationFailed" xml:space="preserve"><value>Couldn't create your account. Please try again.</value></data>
+  <data name="UsernameRequired" xml:space="preserve"><value>Enter your username.</value></data>
+  <data name="UsernameTooLong" xml:space="preserve"><value>Your username must be no longer than {0} characters.</value></data>
+  <data name="PasswordRequired" xml:space="preserve"><value>Enter your password.</value></data>
+  <data name="PasswordTooShort" xml:space="preserve"><value>Your password must contain at least {0} characters.</value></data>
+  <data name="UsernameTaken" xml:space="preserve"><value>This username is already taken.</value></data>
+  <data name="SessionExpiredTitle" xml:space="preserve"><value>Session expired</value></data>
+  <data name="SessionExpiredMessage" xml:space="preserve"><value>You've been signed out due to inactivity. Please sign in again.</value></data>
   <data name="OkButton" xml:space="preserve"><value>OK</value></data>
-  <data name="LoginPageRequired" xml:space="preserve"><value>Не удалось открыть страницу входа.</value></data>
-  <data name="TaskServiceRequired" xml:space="preserve"><value>Сервис задач недоступен.</value></data>
-  <data name="TaskListTitle" xml:space="preserve"><value>МОИ ЗАДАЧИ</value></data>
-  <data name="MyDay" xml:space="preserve"><value>Мой день</value></data>
-  <data name="Important" xml:space="preserve"><value>Важные</value></data>
-  <data name="Planned" xml:space="preserve"><value>Запланированные</value></data>
-  <data name="AllTasks" xml:space="preserve"><value>Все задачи</value></data>
-  <data name="AddTaskPlaceholder" xml:space="preserve"><value>Добавить задачу...</value></data>
-  <data name="NewTaskSectionTitle" xml:space="preserve"><value>Новая задача</value></data>
-  <data name="AddButton" xml:space="preserve"><value>Добавить</value></data>
-  <data name="DeleteButton" xml:space="preserve"><value>Удалить</value></data>
-  <data name="EditTaskPlaceholder" xml:space="preserve"><value>Изменить текст задачи...</value></data>
-  <data name="DescriptionPlaceholder" xml:space="preserve"><value>Добавить описание...</value></data>
-  <data name="PriorityLabel" xml:space="preserve"><value>Приоритет:</value></data>
-  <data name="PriorityLow" xml:space="preserve"><value>Низкий</value></data>
-  <data name="PriorityMedium" xml:space="preserve"><value>Средний</value></data>
-  <data name="PriorityHigh" xml:space="preserve"><value>Высокий</value></data>
-  <data name="DueLabel" xml:space="preserve"><value>Срок:</value></data>
+  <data name="LoginPageRequired" xml:space="preserve"><value>Couldn't open the sign-in page.</value></data>
+  <data name="TaskServiceRequired" xml:space="preserve"><value>The task service is unavailable.</value></data>
+  <data name="TaskListTitle" xml:space="preserve"><value>MY TASKS</value></data>
+  <data name="MyDay" xml:space="preserve"><value>My Day</value></data>
+  <data name="Important" xml:space="preserve"><value>Important</value></data>
+  <data name="Planned" xml:space="preserve"><value>Planned</value></data>
+  <data name="AllTasks" xml:space="preserve"><value>All Tasks</value></data>
+  <data name="AddTaskPlaceholder" xml:space="preserve"><value>Add a task…</value></data>
+  <data name="NewTaskSectionTitle" xml:space="preserve"><value>New task</value></data>
+  <data name="AddButton" xml:space="preserve"><value>Add</value></data>
+  <data name="DeleteButton" xml:space="preserve"><value>Delete</value></data>
+  <data name="EditTaskPlaceholder" xml:space="preserve"><value>Edit task name…</value></data>
+  <data name="DescriptionPlaceholder" xml:space="preserve"><value>Add a description…</value></data>
+  <data name="PriorityLabel" xml:space="preserve"><value>Priority</value></data>
+  <data name="PriorityLow" xml:space="preserve"><value>Low</value></data>
+  <data name="PriorityMedium" xml:space="preserve"><value>Medium</value></data>
+  <data name="PriorityHigh" xml:space="preserve"><value>High</value></data>
+  <data name="DueLabel" xml:space="preserve"><value>Due date</value></data>
   <data name="TimePickerFormat24Hour" xml:space="preserve"><value>HH:mm</value></data>
-  <data name="SaveButton" xml:space="preserve"><value>Сохранить</value></data>
-  <data name="CancelButton" xml:space="preserve"><value>Отмена</value></data>
-  <data name="ClearButton" xml:space="preserve"><value>Очистить</value></data>
-  <data name="ClearCompletedButton" xml:space="preserve"><value>Удалить выполненные</value></data>
-  <data name="ClearCompletedFailedTitle" xml:space="preserve"><value>Не удалось удалить задачи</value></data>
-  <data name="ClearCompletedFailedMessage" xml:space="preserve"><value>Выполненные задачи не удалены. Попробуйте ещё раз.</value></data>
-  <data name="NoTasks" xml:space="preserve"><value>Задач в этом списке пока нет</value></data>
-  <data name="TaskSaveFailedTitle" xml:space="preserve"><value>Не удалось сохранить</value></data>
-  <data name="TaskSaveFailedMessage" xml:space="preserve"><value>Изменение не сохранено. Попробуйте ещё раз.</value></data>
-  <data name="ShowFullDescription" xml:space="preserve"><value>Показать полностью</value></data>
-  <data name="CollapseDescription" xml:space="preserve"><value>Свернуть</value></data>
-  <data name="CreatedAtFormat" xml:space="preserve"><value>{0:dd.MM.yyyy HH:mm}</value></data>
-  <data name="DueAtFormat" xml:space="preserve"><value>Срок: {0:dd.MM.yyyy HH:mm}</value></data>
-  <data name="AllTasksPageTitle" xml:space="preserve"><value>Все задачи</value></data>
-  <data name="AllTasksEmpty" xml:space="preserve"><value>Список задач пока пуст.</value></data>
-  <data name="ImportantPageTitle" xml:space="preserve"><value>Важные задачи</value></data>
-  <data name="ImportantTasksEmpty" xml:space="preserve"><value>Важных задач пока нет.</value></data>
-  <data name="PlannedPageTitle" xml:space="preserve"><value>Запланированные задачи</value></data>
-  <data name="PlannedTasksEmpty" xml:space="preserve"><value>Запланированных задач пока нет.</value></data>
-  <data name="TaskAddedLog" xml:space="preserve"><value>Добавлена задача «{0}» (Id={1})</value></data>
-  <data name="TaskDeletedLog" xml:space="preserve"><value>Удалена задача «{0}» (Id={1})</value></data>
-  <data name="TaskEditedLog" xml:space="preserve"><value>Изменена задача «{0}» (Id={1})</value></data>
-  <data name="TaskReminderTitle" xml:space="preserve"><value>Скоро срок выполнения</value></data>
-  <data name="TaskReminderMessage" xml:space="preserve"><value>Задача «{0}» должна быть выполнена до {1}.</value></data>
-  <data name="TaskReminderPageTitle" xml:space="preserve"><value>Пора вернуться к задаче</value></data>
-  <data name="TaskReminderSnoozeLabel" xml:space="preserve"><value>Напомнить ещё раз через</value></data>
-  <data name="TaskReminderSnoozeButton" xml:space="preserve"><value>Отложить напоминание</value></data>
-  <data name="TaskReminderDismissButton" xml:space="preserve"><value>Больше не напоминать</value></data>
-  <data name="TaskReminderDismissDescription" xml:space="preserve"><value>Задача останется в списке. Отключится только это напоминание.</value></data>
-  <data name="TaskReminderSnooze5Minutes" xml:space="preserve"><value>5 минут</value></data>
-  <data name="TaskReminderSnooze15Minutes" xml:space="preserve"><value>15 минут</value></data>
-  <data name="TaskReminderSnooze30Minutes" xml:space="preserve"><value>30 минут</value></data>
-  <data name="TaskReminderSnooze1Hour" xml:space="preserve"><value>1 час</value></data>
-  <data name="TaskReminderSaveFailedTitle" xml:space="preserve"><value>Не удалось сохранить выбор</value></data>
-  <data name="TaskReminderSaveFailedMessage" xml:space="preserve"><value>Напоминание осталось без изменений. Попробуйте ещё раз.</value></data>
-  <data name="Categories" xml:space="preserve"><value>Категории</value></data>
-  <data name="CategoryLabel" xml:space="preserve"><value>Категория</value></data>
-  <data name="CategoryNone" xml:space="preserve"><value>Без категории</value></data>
-  <data name="CategoryWork" xml:space="preserve"><value>Работа</value></data>
-  <data name="CategoryHome" xml:space="preserve"><value>Дом и семья</value></data>
-  <data name="CategoryShopping" xml:space="preserve"><value>Покупки</value></data>
-  <data name="CategoryStudy" xml:space="preserve"><value>Учёба</value></data>
-  <data name="CategoryPersonal" xml:space="preserve"><value>Личное</value></data>
-  <data name="TaskOptions" xml:space="preserve"><value>Параметры задачи</value></data>
-  <data name="HideTaskOptions" xml:space="preserve"><value>Скрыть параметры</value></data>
-  <data name="EditTaskAction" xml:space="preserve"><value>Изменить</value></data>
-  <data name="EmptyTasksTitle" xml:space="preserve"><value>Здесь пока спокойно</value></data>
-  <data name="EmptyTasksHint" xml:space="preserve"><value>Добавьте задачу выше — начните с одного небольшого дела.</value></data>
-  <data name="TaskNameRequired" xml:space="preserve"><value>Введите название задачи.</value></data>
+  <data name="SaveButton" xml:space="preserve"><value>Save</value></data>
+  <data name="CancelButton" xml:space="preserve"><value>Cancel</value></data>
+  <data name="ClearButton" xml:space="preserve"><value>Clear</value></data>
+  <data name="ClearCompletedButton" xml:space="preserve"><value>Clear completed</value></data>
+  <data name="ClearCompletedFailedTitle" xml:space="preserve"><value>Couldn't delete tasks</value></data>
+  <data name="ClearCompletedFailedMessage" xml:space="preserve"><value>Completed tasks weren't deleted. Please try again.</value></data>
+  <data name="NoTasks" xml:space="preserve"><value>No tasks in this list yet.</value></data>
+  <data name="TaskSaveFailedTitle" xml:space="preserve"><value>Couldn't save task</value></data>
+  <data name="TaskSaveFailedMessage" xml:space="preserve"><value>Your changes weren't saved. Please try again.</value></data>
+  <data name="ShowFullDescription" xml:space="preserve"><value>Show more</value></data>
+  <data name="CollapseDescription" xml:space="preserve"><value>Show less</value></data>
+  <data name="CreatedAtFormat" xml:space="preserve"><value>{0:dd MMM yyyy, HH:mm}</value></data>
+  <data name="DueAtFormat" xml:space="preserve"><value>Due: {0:dd MMM yyyy, HH:mm}</value></data>
+  <data name="AllTasksPageTitle" xml:space="preserve"><value>All Tasks</value></data>
+  <data name="AllTasksEmpty" xml:space="preserve"><value>Your task list is empty.</value></data>
+  <data name="ImportantPageTitle" xml:space="preserve"><value>Important</value></data>
+  <data name="ImportantTasksEmpty" xml:space="preserve"><value>No important tasks yet.</value></data>
+  <data name="PlannedPageTitle" xml:space="preserve"><value>Planned</value></data>
+  <data name="PlannedTasksEmpty" xml:space="preserve"><value>No planned tasks yet.</value></data>
+  <data name="TaskAddedLog" xml:space="preserve"><value>Added task "{0}" (Id={1})</value></data>
+  <data name="TaskDeletedLog" xml:space="preserve"><value>Deleted task "{0}" (Id={1})</value></data>
+  <data name="TaskEditedLog" xml:space="preserve"><value>Updated task "{0}" (Id={1})</value></data>
+  <data name="TaskReminderTitle" xml:space="preserve"><value>Task due soon</value></data>
+  <data name="TaskReminderMessage" xml:space="preserve"><value>Task "{0}" is due by {1}.</value></data>
+  <data name="TaskReminderPageTitle" xml:space="preserve"><value>Time to revisit your task</value></data>
+  <data name="TaskReminderSnoozeLabel" xml:space="preserve"><value>Remind me again in</value></data>
+  <data name="TaskReminderSnoozeButton" xml:space="preserve"><value>Snooze</value></data>
+  <data name="TaskReminderDismissButton" xml:space="preserve"><value>Don't remind me again</value></data>
+  <data name="TaskReminderDismissDescription" xml:space="preserve"><value>The task will stay in your list. Only this reminder will be dismissed.</value></data>
+  <data name="TaskReminderSnooze5Minutes" xml:space="preserve"><value>5 minutes</value></data>
+  <data name="TaskReminderSnooze15Minutes" xml:space="preserve"><value>15 minutes</value></data>
+  <data name="TaskReminderSnooze30Minutes" xml:space="preserve"><value>30 minutes</value></data>
+  <data name="TaskReminderSnooze1Hour" xml:space="preserve"><value>1 hour</value></data>
+  <data name="TaskReminderSaveFailedTitle" xml:space="preserve"><value>Couldn't update reminder</value></data>
+  <data name="TaskReminderSaveFailedMessage" xml:space="preserve"><value>Your reminder hasn't changed. Please try again.</value></data>
+  <data name="Categories" xml:space="preserve"><value>Categories</value></data>
+  <data name="CategoryLabel" xml:space="preserve"><value>Category</value></data>
+  <data name="CategoryNone" xml:space="preserve"><value>Uncategorised</value></data>
+  <data name="CategoryWork" xml:space="preserve"><value>Work</value></data>
+  <data name="CategoryHome" xml:space="preserve"><value>Home &amp; Family</value></data>
+  <data name="CategoryShopping" xml:space="preserve"><value>Shopping</value></data>
+  <data name="CategoryStudy" xml:space="preserve"><value>Study</value></data>
+  <data name="CategoryPersonal" xml:space="preserve"><value>Personal</value></data>
+  <data name="TaskOptions" xml:space="preserve"><value>Task options</value></data>
+  <data name="HideTaskOptions" xml:space="preserve"><value>Hide options</value></data>
+  <data name="EditTaskAction" xml:space="preserve"><value>Edit</value></data>
+  <data name="EmptyTasksTitle" xml:space="preserve"><value>Nothing here yet</value></data>
+  <data name="EmptyTasksHint" xml:space="preserve"><value>Add a task above. Start with one small thing.</value></data>
+  <data name="TaskNameRequired" xml:space="preserve"><value>Enter a task name.</value></data>
+  <data name="DatePickerFormat" xml:space="preserve"><value>dd MMM yyyy</value></data>
 </root>

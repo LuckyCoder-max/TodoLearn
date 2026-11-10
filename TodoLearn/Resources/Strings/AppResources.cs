@@ -5,6 +5,7 @@ namespace TodoLearn.Resources.Strings;
 
 public static class AppResources
 {
+    public static string DatePickerFormat => GetString(nameof(DatePickerFormat));
     public static string TaskNameRequired => GetString(nameof(TaskNameRequired));
     public static string TaskOptions => GetString(nameof(TaskOptions));
     public static string HideTaskOptions => GetString(nameof(HideTaskOptions));
