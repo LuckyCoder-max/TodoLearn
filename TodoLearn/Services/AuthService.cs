@@ -12,12 +12,14 @@ public sealed class AuthService
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(1);
 
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
+    private readonly TimeProvider _timeProvider;
     private readonly Dictionary<string, LoginAttempt> _loginAttempts = new(StringComparer.OrdinalIgnoreCase);
     private readonly object _loginAttemptsLock = new();
 
-    public AuthService(IDbContextFactory<AppDbContext> dbFactory)
+    public AuthService(IDbContextFactory<AppDbContext> dbFactory, TimeProvider? timeProvider = null)
     {
         _dbFactory = dbFactory;
+        _timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     public async Task<string?> RegisterAsync(string? username, string? password)
@@ -123,7 +125,7 @@ public sealed class AuthService
             if (attempt.LockedUntil is null)
                 return null;
 
-            var remaining = attempt.LockedUntil.Value - DateTime.UtcNow;
+            var remaining = attempt.LockedUntil.Value - _timeProvider.GetUtcNow().UtcDateTime;
             if (remaining > TimeSpan.Zero)
                 return remaining;
 
@@ -146,7 +148,7 @@ public sealed class AuthService
             if (attempt.FailedAttempts < MaxFailedAttempts)
                 return null;
 
-            attempt.LockedUntil = DateTime.UtcNow.Add(LockoutDuration);
+            attempt.LockedUntil = _timeProvider.GetUtcNow().UtcDateTime.Add(LockoutDuration);
             return LockoutDuration;
         }
     }

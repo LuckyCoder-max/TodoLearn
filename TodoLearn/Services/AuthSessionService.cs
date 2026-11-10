@@ -2,7 +2,7 @@ using Microsoft.Maui.Storage;
 
 namespace TodoLearn.Services;
 
-public sealed class AuthSessionService
+public sealed class AuthSessionService : IAccountSession
 {
     private const string RememberedUsernameKey = "todo.auth.remembered_username";
     private readonly AuthService _authService;

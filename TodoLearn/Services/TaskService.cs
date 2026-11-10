@@ -6,15 +6,17 @@ namespace TodoLearn.Services;
 public sealed class TaskService
 {
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
-    private readonly AuthSessionService _authSessionService;
+    private readonly IAccountSession _authSessionService;
+    private readonly TimeProvider _timeProvider;
     private readonly SemaphoreSlim _loadLock = new(1, 1);
     private List<TaskItem>? _tasks;
     private int? _cachedAccountId;
 
-    public TaskService(IDbContextFactory<AppDbContext> dbFactory, AuthSessionService authSessionService)
+    public TaskService(IDbContextFactory<AppDbContext> dbFactory, IAccountSession authSessionService, TimeProvider? timeProvider = null)
     {
         _dbFactory = dbFactory;
         _authSessionService = authSessionService;
+        _timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     public async Task<IReadOnlyList<TaskItem>> GetTasksAsync()
@@ -180,7 +182,7 @@ public sealed class TaskService
             return false;
 
         storedTask.ReminderPendingForDueAt = null;
-        storedTask.ReminderSnoozedUntil = DateTime.Now.Add(duration);
+        storedTask.ReminderSnoozedUntil = _timeProvider.GetLocalNow().DateTime.Add(duration);
         await db.SaveChangesAsync();
         task.ReminderPendingForDueAt = null;
         task.ReminderSnoozedUntil = storedTask.ReminderSnoozedUntil;
