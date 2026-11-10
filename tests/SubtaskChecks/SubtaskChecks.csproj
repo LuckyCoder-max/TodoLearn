@@ -11,6 +11,7 @@
     <Compile Include="../../TodoLearn/AppDbContext.cs" Link="AppDbContext.cs" />
     <Compile Include="../../TodoLearn/Services/TaskService.cs" Link="TaskService.cs" />
     <Compile Include="../../TodoLearn/Services/IAccountSession.cs" Link="IAccountSession.cs" />
+    <Compile Include="../../TodoLearn/Services/ITaskWriter.cs" Link="ITaskWriter.cs" />
     <Compile Include="../../TodoLearn/Models/TaskItem.cs" Link="TaskItem.cs" />
     <Compile Include="../../TodoLearn/Models/DeadlineOverview.cs" Link="DeadlineOverview.cs" />
     <Compile Include="../../TodoLearn/Models/TaskStep.cs" Link="TaskStep.cs" />

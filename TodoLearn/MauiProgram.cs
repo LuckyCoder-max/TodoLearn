@@ -41,6 +41,9 @@ namespace ToDoListApp
             builder.Services.AddSingleton<IAccountSession>(services => services.GetRequiredService<AuthSessionService>());
             builder.Services.AddSingleton<IGoogleSignInService, GoogleSignInService>();
             builder.Services.AddSingleton<TaskService>();
+            builder.Services.AddSingleton<ITaskWriter>(services => services.GetRequiredService<TaskService>());
+            builder.Services.AddTransient<TodoLearn.ViewModels.TaskEditorViewModel>();
+            builder.Services.AddTransient<TaskComposerView>();
             builder.Services.AddSingleton<InactivityService>();
             builder.Services.AddSingleton<TaskReminderService>();
             builder.Services.AddTransient<LoginPage>();

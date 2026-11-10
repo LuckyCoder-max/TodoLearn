@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Microsoft.Extensions.DependencyInjection;
 using TodoLearn.Models;
 using TodoLearn.Resources.Strings;
 using TodoLearn.Services;
@@ -13,25 +14,16 @@ public partial class TaskListView : ContentView
     {
         get
         {
-            if (_composer is not null) return _composer;
-            _composer = new TaskComposerView();
+            if (_composer is not null)
+                return _composer;
+            _composer = IPlatformApplication.Current!.Services.GetRequiredService<TaskComposerView>();
             _composer.SaveRequested += OnAddTaskClicked;
             _composer.CancelRequested += OnComposerToggleClicked;
             ComposerHost.Content = _composer;
             return _composer;
         }
     }
-    private Entry NewTaskEntry => Composer.NewTaskEntry;
-    private Editor NewTaskDescriptionEditor => Composer.NewTaskDescriptionEditor;
-    private Picker NewTaskPriorityPicker => Composer.NewTaskPriorityPicker;
-    private DatePicker NewTaskDatePicker => Composer.NewTaskDatePicker;
-    private TimePicker NewTaskTimePicker => Composer.NewTaskTimePicker;
-    private Picker NewTaskCategoryPicker => Composer.NewTaskCategoryPicker;
-    private Label ValidationLabel => Composer.ValidationLabel;
-    private Button CreateTaskButton => Composer.CreateTaskButton;
-    private TaskItem? _editingTask;
-    public string ComposerTitle => _editingTask is null ? AppResources.NewTaskSectionTitle : AppResources.EditTaskAction;
-    public string ComposerSaveText => _editingTask is null ? AppResources.AddButton : AppResources.SaveButton;
+
     private bool _isComposerClosing;
     private bool _isComposerExpanded;
     public bool IsComposerExpanded
@@ -48,29 +40,19 @@ public partial class TaskListView : ContentView
 
     private async void OnComposerToggleClicked(object? sender, EventArgs e)
     {
-        if (!CreateTaskButton.IsEnabled || _isComposerClosing)
+        if (Composer.Editor.IsSaving || _isComposerClosing)
             return;
         if (IsComposerExpanded)
         {
             await CloseComposerAsync();
             return;
         }
-        _editingTask = null;
-        NewTaskEntry.Text = QuickTaskEntry.Text;
-        Composer.SetSteps([]);
-        NewTaskDescriptionEditor.Text = string.Empty;
-        NewTaskPriorityPicker.SelectedIndex = 0;
-        NewTaskDatePicker.Date = DateTime.Today;
-        NewTaskTimePicker.Time = DateTime.Now.TimeOfDay;
-        NewTaskCategoryPicker.SelectedIndex = _categoryView && _selectedCategory is { } category ? (int)category + 1 : 0;
+        Composer.Editor.BeginNew(QuickTaskEntry.Text, _categoryView ? _selectedCategory : null);
         await OpenComposerAsync();
     }
 
     private async Task OpenComposerAsync()
     {
-        ValidationLabel.IsVisible = false;
-        OnPropertyChanged(nameof(ComposerTitle));
-        OnPropertyChanged(nameof(ComposerSaveText));
         Composer.PrepareToShow();
         IsComposerExpanded = true;
         QuickComposer.IsEnabled = false;
@@ -121,7 +103,7 @@ public partial class TaskListView : ContentView
             if (!IsComposerExpanded)
                 return;
             args.Handled = true;
-            if (!CreateTaskButton.IsEnabled)
+            if (Composer.Editor.IsSaving)
                 return;
             if (save)
                 OnAddTaskClicked(this, EventArgs.Empty);
@@ -144,13 +126,6 @@ public partial class TaskListView : ContentView
 
     public ObservableCollection<TaskItem> Tasks { get; } = new();
     public ObservableCollection<TaskItem> DisplayTasks { get; private set; } = new();
-    public IReadOnlyList<string> PriorityOptions { get; } = new[]
-    {
-        AppResources.PriorityLow,
-        AppResources.PriorityMedium,
-        AppResources.PriorityHigh
-    };
-
     public FilterType Filter { get; set; } = FilterType.MyDay;
     public IReadOnlyList<string> CategoryOptions => TaskCategories.Names;
     private bool _categoryView;
@@ -203,87 +178,29 @@ public partial class TaskListView : ContentView
 
     private async void OnAddTaskClicked(object? sender, EventArgs e)
     {
-        if (!CreateTaskButton.IsEnabled || _isComposerClosing)
+        if (Composer.Editor.IsSaving || _isComposerClosing)
             return;
-        var text = NewTaskEntry.Text?.Trim();
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            ValidationLabel.Text = AppResources.TaskNameRequired;
-            ValidationLabel.IsVisible = true;
-            NewTaskEntry.Focus();
-            return;
-        }
-        ValidationLabel.IsVisible = false;
-
-        var description = NewTaskDescriptionEditor.Text?.Trim();
-        Composer.IncludePendingStep();
-        var priority = Enum.IsDefined(typeof(TaskPriority), NewTaskPriorityPicker.SelectedIndex)
-            ? (TaskPriority)NewTaskPriorityPicker.SelectedIndex
-            : TaskPriority.Low;
-        var dueAt = (NewTaskDatePicker.Date?.Date ?? DateTime.Today)
-            + (NewTaskTimePicker.Time ?? DateTime.Now.TimeOfDay);
-
-        var categoryIndex = NewTaskCategoryPicker.SelectedIndex;
-        TaskCategory? category = categoryIndex > 0 && categoryIndex < CategoryOptions.Count
-            ? (TaskCategory)(categoryIndex - 1) : null;
-        TaskItem task;
-        CreateTaskButton.IsEnabled = false;
+        var editing = Composer.Editor.IsEditing;
         try
         {
-            if (_editingTask is null)
+            var task = await Composer.Editor.SaveAsync();
+            if (task is null)
             {
-                task = await _taskService.AddAsync(text, description, priority, dueAt, category, Composer.DraftSteps);
+                Composer.FocusTitle();
+                return;
+            }
+            if (!editing)
                 Tasks.Add(task);
-            }
-            else
-            {
-                var original = _editingTask;
-                var draft = new TaskItem
-                {
-                    Id = original.Id, UserAccountId = original.UserAccountId,
-                    CreatedAt = original.CreatedAt, IsCompleted = original.IsCompleted,
-                    Text = text, Description = description, Priority = priority, DueAt = dueAt, Category = category,
-                    ReminderSentForDueAt = original.ReminderSentForDueAt,
-                    ReminderPendingForDueAt = original.ReminderPendingForDueAt,
-                    ReminderSnoozedUntil = original.ReminderSnoozedUntil,
-                    ReminderDismissedForDueAt = original.ReminderDismissedForDueAt
-                };
-                foreach (var step in Composer.DraftSteps) draft.Steps.Add(step.Copy());
-                await _taskService.UpdateAsync(draft);
-                foreach (var step in original.Steps.ToList()) original.Steps.Remove(step);
-                foreach (var step in draft.Steps.Where(step => !string.IsNullOrWhiteSpace(step.Text))) original.Steps.Add(step.Copy());
-                original.Text = draft.Text;
-                original.Description = draft.Description;
-                original.Priority = draft.Priority;
-                original.DueAt = draft.DueAt;
-                original.Category = draft.Category;
-                original.ReminderSentForDueAt = draft.ReminderSentForDueAt;
-                original.ReminderPendingForDueAt = draft.ReminderPendingForDueAt;
-                original.ReminderSnoozedUntil = draft.ReminderSnoozedUntil;
-                original.ReminderDismissedForDueAt = draft.ReminderDismissedForDueAt;
-                task = original;
-            }
         }
         catch
         {
-            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
-            if (page is not null)
+            if (Window?.Page is { } page)
                 await page.DisplayAlertAsync(AppResources.TaskSaveFailedTitle, AppResources.TaskSaveFailedMessage, AppResources.OkButton);
             return;
-        }
-        finally
-        {
-            CreateTaskButton.IsEnabled = true;
         }
         RefreshDisplay();
         await CloseComposerAsync();
         QuickTaskEntry.Text = string.Empty;
-        NewTaskEntry.Text = string.Empty;
-        NewTaskDescriptionEditor.Text = string.Empty;
-        NewTaskPriorityPicker.SelectedIndex = 0;
-        NewTaskDatePicker.Date = DateTime.Today;
-        NewTaskTimePicker.Time = DateTime.Now.TimeOfDay;
-
     }
 
     private async void OnTaskCompletionChanged(object? sender, CheckedChangedEventArgs e)
@@ -324,6 +241,55 @@ public partial class TaskListView : ContentView
             if (summary?.BindingContext is TaskItem bound)
                 summary.Opacity = bound.IsCompleted ? 0.55 : 1;
         }
+    }
+
+    private void OnTaskSummaryBindingContextChanged(object? sender, EventArgs e)
+    {
+        if (sender is VisualElement { BindingContext: TaskItem task } summary)
+        {
+            summary.CancelAnimations();
+            summary.Opacity = task.IsCompleted ? 0.55 : 1;
+        }
+    }
+
+    private void OnTaskPointerEntered(object? sender, PointerEventArgs e)
+    {
+        if (sender is Border row)
+            row.SetAppThemeColor(BackgroundColorProperty, (Color)Application.Current!.Resources["HoverLight"], (Color)Application.Current.Resources["HoverDark"]);
+    }
+
+    private void OnTaskPointerExited(object? sender, PointerEventArgs e)
+    {
+        if (sender is Border row)
+            row.BackgroundColor = Colors.Transparent;
+    }
+
+    private async void OnTaskMenuClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button { BindingContext: TaskItem task } button)
+            return;
+#if WINDOWS
+        if (button.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement anchor)
+        {
+            var menu = new Microsoft.UI.Xaml.Controls.MenuFlyout();
+            var edit = new Microsoft.UI.Xaml.Controls.MenuFlyoutItem { Text = AppResources.EditTaskAction };
+            edit.Click += (_, _) => OnTaskDoubleTapped(button, EventArgs.Empty);
+            var delete = new Microsoft.UI.Xaml.Controls.MenuFlyoutItem { Text = AppResources.DeleteButton };
+            delete.Click += (_, _) => OnDeleteClicked(new Button { CommandParameter = task }, EventArgs.Empty);
+            menu.Items.Add(edit);
+            menu.Items.Add(delete);
+            menu.ShowAt(anchor);
+            return;
+        }
+#endif
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page is null)
+            return;
+        var action = await page.DisplayActionSheetAsync(AppResources.TaskActions, AppResources.CancelButton, null, AppResources.EditTaskAction, AppResources.DeleteButton);
+        if (action == AppResources.EditTaskAction)
+            OnTaskDoubleTapped(button, EventArgs.Empty);
+        else if (action == AppResources.DeleteButton)
+            OnDeleteClicked(new Button { CommandParameter = task }, EventArgs.Empty);
     }
 
     private bool _isDeleting;
@@ -393,14 +359,7 @@ public partial class TaskListView : ContentView
     {
         if (IsComposerExpanded || sender is not BindableObject { BindingContext: TaskItem task })
             return;
-        _editingTask = task;
-        Composer.SetSteps(task.Steps);
-        NewTaskEntry.Text = task.Text;
-        NewTaskDescriptionEditor.Text = task.Description;
-        NewTaskPriorityPicker.SelectedIndex = (int)task.Priority;
-        NewTaskDatePicker.Date = task.DueAt.Date;
-        NewTaskTimePicker.Time = task.DueAt.TimeOfDay;
-        NewTaskCategoryPicker.SelectedIndex = task.CategoryIndex;
+        Composer.Editor.BeginEdit(task);
         await OpenComposerAsync();
     }
 
@@ -408,6 +367,27 @@ public partial class TaskListView : ContentView
     {
         if (sender is BindableObject { BindingContext: TaskItem task } && task.ShowDescriptionToggle)
             task.IsDescriptionExpanded = !task.IsDescriptionExpanded;
+    }
+
+    private void OnStepsToggleClicked(object? sender, EventArgs e)
+    {
+        if (sender is BindableObject { BindingContext: TaskItem task }) task.StepsExpanded = !task.StepsExpanded;
+    }
+
+    private async void OnStepCompletionChanged(object? sender, CheckedChangedEventArgs e)
+    {
+        if (sender is not CheckBox { BindingContext: TaskStep step } checkbox || step.IsCompleted == e.Value) return;
+        var task = Tasks.FirstOrDefault(item => item.Id == step.TaskItemId);
+        if (task is null) return;
+        checkbox.IsEnabled = false;
+        try { await _taskService.SetStepCompletedAsync(task, step, e.Value); }
+        catch
+        {
+            checkbox.IsChecked = step.IsCompleted;
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+            if (page is not null) await page.DisplayAlertAsync(AppResources.TaskSaveFailedTitle, AppResources.TaskSaveFailedMessage, AppResources.OkButton);
+        }
+        finally { checkbox.IsEnabled = true; }
     }
 
     private void OnDescriptionLabelSizeChanged(object? sender, EventArgs e)
@@ -471,6 +451,12 @@ public partial class TaskListView : ContentView
         UpdateClearCompletedButton();
     }
 
+    private void UpdateClearCompletedButton()
+    {
+        UpdateDashboard();
+        ClearCompletedButton.IsEnabled = Tasks.Any(task => task.IsCompleted && (!_categoryView || task.Category == _selectedCategory));
+    }
+
     private static string GetTitle(FilterType filter) => filter switch
     {
         FilterType.Important => AppResources.ImportantPageTitle,
@@ -479,80 +465,4 @@ public partial class TaskListView : ContentView
         _ => AppResources.MyDay
     };
 
-
-    private void OnTaskPointerEntered(object? sender, PointerEventArgs e)
-    {
-        if (sender is Border row)
-            row.SetAppThemeColor(BackgroundColorProperty, (Color)Application.Current!.Resources["HoverLight"], (Color)Application.Current.Resources["HoverDark"]);
-    }
-
-    private void OnTaskPointerExited(object? sender, PointerEventArgs e)
-    {
-        if (sender is Border row)
-            row.BackgroundColor = Colors.Transparent;
-    }
-
-    private async void OnTaskMenuClicked(object? sender, EventArgs e)
-    {
-        if (sender is not Button { BindingContext: TaskItem task } button)
-            return;
-#if WINDOWS
-        if (button.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement anchor)
-        {
-            var menu = new Microsoft.UI.Xaml.Controls.MenuFlyout();
-            var edit = new Microsoft.UI.Xaml.Controls.MenuFlyoutItem { Text = AppResources.EditTaskAction };
-            edit.Click += (_, _) => OnTaskDoubleTapped(button, EventArgs.Empty);
-            var delete = new Microsoft.UI.Xaml.Controls.MenuFlyoutItem { Text = AppResources.DeleteButton };
-            delete.Click += (_, _) => OnDeleteClicked(new Button { CommandParameter = task }, EventArgs.Empty);
-            menu.Items.Add(edit);
-            menu.Items.Add(delete);
-            menu.ShowAt(anchor);
-            return;
-        }
-#endif
-        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
-        if (page is null)
-            return;
-        var action = await page.DisplayActionSheetAsync(AppResources.TaskActions, AppResources.CancelButton, null, AppResources.EditTaskAction, AppResources.DeleteButton);
-        if (action == AppResources.EditTaskAction)
-            OnTaskDoubleTapped(button, EventArgs.Empty);
-        else if (action == AppResources.DeleteButton)
-            OnDeleteClicked(new Button { CommandParameter = task }, EventArgs.Empty);
-    }
-
-    private void UpdateClearCompletedButton()
-    {
-        UpdateDashboard();
-        ClearCompletedButton.IsEnabled = Tasks.Any(task => task.IsCompleted && (!_categoryView || task.Category == _selectedCategory));
-    }
-
-    private void OnStepsToggleClicked(object? sender, EventArgs e)
-    {
-        if (sender is BindableObject { BindingContext: TaskItem task }) task.StepsExpanded = !task.StepsExpanded;
-    }
-
-    private async void OnStepCompletionChanged(object? sender, CheckedChangedEventArgs e)
-    {
-        if (sender is not CheckBox { BindingContext: TaskStep step } checkbox || step.IsCompleted == e.Value) return;
-        var task = Tasks.FirstOrDefault(item => item.Id == step.TaskItemId);
-        if (task is null) return;
-        checkbox.IsEnabled = false;
-        try { await _taskService.SetStepCompletedAsync(task, step, e.Value); }
-        catch
-        {
-            checkbox.IsChecked = step.IsCompleted;
-            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
-            if (page is not null) await page.DisplayAlertAsync(AppResources.TaskSaveFailedTitle, AppResources.TaskSaveFailedMessage, AppResources.OkButton);
-        }
-        finally { checkbox.IsEnabled = true; }
-    }
-
-    private void OnTaskSummaryBindingContextChanged(object? sender, EventArgs e)
-    {
-        if (sender is VisualElement { BindingContext: TaskItem task } summary)
-        {
-            summary.CancelAnimations();
-            summary.Opacity = task.IsCompleted ? 0.55 : 1;
-        }
-    }
 }

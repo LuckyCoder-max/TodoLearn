@@ -3,7 +3,7 @@ using TodoLearn.Models;
 
 namespace TodoLearn.Services;
 
-public sealed class TaskService
+public sealed class TaskService : ITaskWriter
 {
     private readonly IDbContextFactory<AppDbContext> _dbFactory;
     private readonly IAccountSession _authSessionService;

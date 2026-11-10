@@ -19,6 +19,8 @@
     <Compile Include="../../TodoLearn/Models/*.cs" Exclude="../../TodoLearn/Models/User.cs" Link="Application/Models/%(Filename)%(Extension)" />
     <Compile Include="../../TodoLearn/Helpers/*Validator.cs" Link="Application/Helpers/%(Filename)%(Extension)" />
     <Compile Include="../../TodoLearn/Helpers/TaskQuery.cs" Link="Application/Helpers/TaskQuery.cs" />
+    <Compile Include="../../TodoLearn/Services/ITaskWriter.cs" Link="Application/Services/ITaskWriter.cs" />
+    <Compile Include="../../TodoLearn/ViewModels/TaskEditorViewModel.cs" Link="Application/ViewModels/TaskEditorViewModel.cs" />
     <Compile Include="../../TodoLearn/Services/AuthService.cs;../../TodoLearn/Services/PasswordHasher.cs;../../TodoLearn/Services/TaskService.cs;../../TodoLearn/Services/IAccountSession.cs" Link="Application/Services/%(Filename)%(Extension)" />
     <Compile Include="../../TodoLearn/Resources/Strings/AppResources.cs" Link="Application/AppResources.cs" />
     <EmbeddedResource Include="../../TodoLearn/Resources/Strings/AppResources.resx" LogicalName="TodoLearn.Resources.Strings.AppResources.resources" />
