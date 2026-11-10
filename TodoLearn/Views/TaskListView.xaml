@@ -6,10 +6,21 @@
              x:Class="TodoLearn.Views.TaskListView">
     <Grid x:Name="RootLayout" BackgroundColor="{AppThemeBinding Light={StaticResource CanvasLight}, Dark={StaticResource CanvasDark}}">
     <Grid x:Name="ListLayout" HorizontalOptions="Center" Padding="0,24" RowDefinitions="Auto, Auto, *, Auto" RowSpacing="20" BackgroundColor="{AppThemeBinding Light={StaticResource CanvasLight}, Dark={StaticResource CanvasDark}}">
-        <VerticalStackLayout Spacing="4">
+        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="24" RowSpacing="6">
             <Label x:Name="TitleLabel" FontSize="30" FontAttributes="Bold" />
-            <Label Text="{Binding TodayText}" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
-        </VerticalStackLayout>
+            <Label Grid.Row="1" Text="{Binding TodayText}" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+            <Label Grid.Column="1" Text="{Binding CurrentTimeText}" IsVisible="{Binding IsDashboardVisible}" FontSize="28" HorizontalTextAlignment="End" VerticalOptions="Center" />
+            <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="6" IsVisible="{Binding IsDashboardVisible}">
+                <Label Text="{Binding CompactNextTaskTitle}" FontSize="12" HorizontalTextAlignment="End" MaxLines="1" LineBreakMode="TailTruncation" ToolTipProperties.Text="{Binding CompactNextTaskTitle}" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                <Label Grid.Column="1" Text="{Binding NextDeadlineRemaining}" IsVisible="{Binding HasNextDeadline}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsDeadlineSoon}" Value="True">
+                            <Setter Property="TextColor" Value="{StaticResource PriorityHighColor}" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </Grid>
+        </Grid>
 
         <Border x:Name="QuickComposer" Grid.Row="1" Padding="10,4" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource SurfaceDark}}" StrokeShape="RoundRectangle 8">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">

@@ -145,6 +145,7 @@ public partial class TaskListView : ContentView
     public void SetCategory(TaskCategory? category)
     {
         _categoryView = true;
+        OnPropertyChanged(nameof(IsDashboardVisible));
         _selectedCategory = category;
         TitleLabel.Text = CategoryOptions[category is { } value ? (int)value + 1 : 0];
         RefreshDisplay();
@@ -162,6 +163,7 @@ public partial class TaskListView : ContentView
         Unloaded += DetachShortcuts;
 #endif
         TitleLabel.Text = GetTitle(Filter);
+        Unloaded += (_, _) => StopDashboardClock();
     }
 
     public async Task LoadTasksAsync()
@@ -180,6 +182,7 @@ public partial class TaskListView : ContentView
     public void SetFilter(FilterType filter)
     {
         Filter = filter;
+        OnPropertyChanged(nameof(IsDashboardVisible));
         TitleLabel.Text = GetTitle(filter);
         RefreshDisplay();
     }
@@ -465,6 +468,7 @@ public partial class TaskListView : ContentView
 
     private void UpdateClearCompletedButton()
     {
+        UpdateDashboard();
         ClearCompletedButton.IsEnabled = Tasks.Any(task => task.IsCompleted && (!_categoryView || task.Category == _selectedCategory));
     }
 

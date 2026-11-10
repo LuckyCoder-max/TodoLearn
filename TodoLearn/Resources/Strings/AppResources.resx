@@ -109,5 +109,14 @@
   <data name="AddStep" xml:space="preserve"><value>Add step</value></data>
   <data name="RemoveStep" xml:space="preserve"><value>Remove step</value></data>
   <data name="StepsProgressFormat" xml:space="preserve"><value>{0} of {1} steps</value></data>
+  <data name="RightNow" xml:space="preserve"><value>LOCAL TIME</value></data>
+  <data name="UpNext" xml:space="preserve"><value>UP NEXT · ALL CATEGORIES</value></data>
+  <data name="NoUpcomingDeadlines" xml:space="preserve"><value>No upcoming deadlines</value></data>
+  <data name="OverdueTasksFormat" xml:space="preserve"><value>Overdue tasks: {0}</value></data>
+  <data name="DueNow" xml:space="preserve"><value>· in &lt;1 min</value></data>
+  <data name="DueInMinutes" xml:space="preserve"><value>· in {0} min</value></data>
+  <data name="DueInHoursMinutes" xml:space="preserve"><value>· in {0}h {1}m</value></data>
+  <data name="DueInDaysHours" xml:space="preserve"><value>· in {0}d {1}h</value></data>
+  <data name="NextTaskCompactFormat" xml:space="preserve"><value>Next: {0}</value></data>
   <data name="DueTimeLabel" xml:space="preserve"><value>Due time · 24-hour</value></data>
 </root>
