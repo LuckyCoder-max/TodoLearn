@@ -20,6 +20,7 @@ namespace TodoLearn
             CurrentUsernameLabel.Text = _authSessionService?.CurrentUsername ?? string.Empty;
             CurrentUsernameLabel.IsVisible = !string.IsNullOrWhiteSpace(CurrentUsernameLabel.Text);
             AddCategoryPages();
+            BuildNavigation();
 
             if (_inactivityService != null)
             {
@@ -43,10 +44,63 @@ namespace TodoLearn
             }
         }
 
+        private readonly List<(Button Button, ShellItem Item)> _navigationButtons = new();
+
+        private void BuildNavigation()
+        {
+            var symbols = new[] { "☀", "☆", "◷", "☷" };
+            for (var index = 0; index < Items.Count; index++)
+            {
+                if (index == 4)
+                {
+                    var heading = new Label { Text = TodoLearn.Resources.Strings.AppResources.Categories, FontSize = 11, Margin = new Thickness(12, 24, 0, 8) };
+                    heading.SetAppThemeColor(Label.TextColorProperty, Color.FromArgb("#637581"), Color.FromArgb("#A9BBC4"));
+                    NavigationItems.Children.Add(heading);
+                }
+                var item = Items[index];
+                var button = new Button
+                {
+                    Text = $"{(index < 4 ? symbols[index] : "·")}   {item.Title}",
+                    FontSize = 14, HeightRequest = 42, CornerRadius = 8,
+                    Padding = new Thickness(12, 0), HorizontalOptions = LayoutOptions.Fill,
+                    BackgroundColor = Colors.Transparent
+                };
+                button.SetAppThemeColor(Button.TextColorProperty, Color.FromArgb("#344650"), Color.FromArgb("#DFE8EC"));
+#if WINDOWS
+                button.HandlerChanged += (_, _) =>
+                {
+                    if (button.Handler?.PlatformView is Microsoft.UI.Xaml.Controls.Button nativeButton)
+                    {
+                        nativeButton.HorizontalContentAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Left;
+                        nativeButton.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
+                    }
+                };
+#endif
+                button.Clicked += (_, _) => CurrentItem = item;
+                NavigationItems.Children.Add(button);
+                _navigationButtons.Add((button, item));
+            }
+            Navigated += (_, _) => UpdateNavigationSelection();
+            UpdateNavigationSelection();
+        }
+
+        private void UpdateNavigationSelection()
+        {
+            foreach (var (button, item) in _navigationButtons)
+            {
+                if (CurrentItem == item)
+                    button.SetAppThemeColor(Button.BackgroundColorProperty, Color.FromArgb("#D6E9EC"), Color.FromArgb("#30454D"));
+                else
+                    button.BackgroundColor = Colors.Transparent;
+                button.FontAttributes = CurrentItem == item ? FontAttributes.Bold : FontAttributes.None;
+            }
+        }
+
         private void OnUserActivity()
         {
             _inactivityService?.Reset();
         }
+
 
         private void OnLogoutClicked(object? sender, EventArgs e)
         {

@@ -120,12 +120,22 @@ namespace TodoLearn.Models
                 _dueAt = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DueAt)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DueAtText)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CompactDueAtText)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DueDate)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DueTime)));
             }
         }
 
         public string DueAtText => string.Format(AppResources.DueAtFormat, DueAt);
+        public string CompactDueAtText => DueAt.Date == DateTime.Today
+            ? string.Format(AppResources.DueTodayFormat, DueAt)
+            : DueAt.ToString("dd MMM yyyy · HH:mm");
+        public string PriorityText => Priority switch
+        {
+            TaskPriority.High => AppResources.PriorityHigh,
+            TaskPriority.Medium => AppResources.PriorityMedium,
+            _ => AppResources.PriorityLow
+        };
 
         public DateTime? ReminderSentForDueAt { get; set; }
         public DateTime? ReminderPendingForDueAt { get; set; }
@@ -186,6 +196,7 @@ namespace TodoLearn.Models
                 _priority = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Priority)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PriorityIndex)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PriorityText)));
             }
         }
 

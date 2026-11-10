@@ -19,11 +19,17 @@
         </VerticalStackLayout>
     </Shell.FlyoutHeader>
 
+    <Shell.FlyoutContent>
+        <ScrollView>
+            <VerticalStackLayout x:Name="NavigationItems" Padding="12,0" Spacing="4" />
+        </ScrollView>
+    </Shell.FlyoutContent>
+
     <Shell.FlyoutFooter>
         <Border Margin="16,8,16,16"
                 Padding="14,12"
-                Stroke="{AppThemeBinding Light={StaticResource Gray200Brush}, Dark={StaticResource Gray600Brush}}"
-                Background="{AppThemeBinding Light={StaticResource WhiteBrush}, Dark={StaticResource Gray900Brush}}">
+                StrokeThickness="0"
+                Background="Transparent">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="12" />
             </Border.StrokeShape>
@@ -33,7 +39,7 @@
                        FontAttributes="Bold"
                        LineBreakMode="TailTruncation"
                        MaxLines="1"
-                       TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+                       TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" VerticalOptions="Center" />
                 <Button Text="{x:Static strings:AppResources.LogoutButton}"
                         Clicked="OnLogoutClicked"
                         Margin="0"

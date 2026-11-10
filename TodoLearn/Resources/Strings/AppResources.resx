@@ -101,5 +101,7 @@
   <data name="EmptyTasksTitle" xml:space="preserve"><value>Nothing here yet</value></data>
   <data name="EmptyTasksHint" xml:space="preserve"><value>Add a task above. Start with one small thing.</value></data>
   <data name="TaskNameRequired" xml:space="preserve"><value>Enter a task name.</value></data>
+  <data name="TaskActions" xml:space="preserve"><value>Task actions</value></data>
+  <data name="DueTodayFormat" xml:space="preserve"><value>Today, {0:HH:mm}</value></data>
   <data name="DatePickerFormat" xml:space="preserve"><value>dd MMM yyyy</value></data>
 </root>

@@ -135,6 +135,7 @@ public partial class TaskListView : ContentView
         _taskService = IPlatformApplication.Current?.Services.GetService<TaskService>()
             ?? throw new InvalidOperationException(AppResources.TaskServiceRequired);
         BindingContext = this;
+        SizeChanged += (_, _) => ListLayout.WidthRequest = Math.Max(0, Math.Min(960, Width - 48));
 #if WINDOWS
         Loaded += AttachShortcuts;
         Unloaded += DetachShortcuts;
@@ -376,4 +377,44 @@ public partial class TaskListView : ContentView
         _ => AppResources.MyDay
     };
 
+
+    private void OnTaskPointerEntered(object? sender, PointerEventArgs e)
+    {
+        if (sender is Border row)
+            row.SetAppThemeColor(BackgroundColorProperty, (Color)Application.Current!.Resources["HoverLight"], (Color)Application.Current.Resources["HoverDark"]);
+    }
+
+    private void OnTaskPointerExited(object? sender, PointerEventArgs e)
+    {
+        if (sender is Border row)
+            row.BackgroundColor = Colors.Transparent;
+    }
+
+    private async void OnTaskMenuClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button { BindingContext: TaskItem task } button)
+            return;
+#if WINDOWS
+        if (button.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement anchor)
+        {
+            var menu = new Microsoft.UI.Xaml.Controls.MenuFlyout();
+            var edit = new Microsoft.UI.Xaml.Controls.MenuFlyoutItem { Text = AppResources.EditTaskAction };
+            edit.Click += (_, _) => OnTaskDoubleTapped(button, EventArgs.Empty);
+            var delete = new Microsoft.UI.Xaml.Controls.MenuFlyoutItem { Text = AppResources.DeleteButton };
+            delete.Click += (_, _) => OnDeleteClicked(new Button { CommandParameter = task }, EventArgs.Empty);
+            menu.Items.Add(edit);
+            menu.Items.Add(delete);
+            menu.ShowAt(anchor);
+            return;
+        }
+#endif
+        var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+        if (page is null)
+            return;
+        var action = await page.DisplayActionSheetAsync(AppResources.TaskActions, AppResources.CancelButton, null, AppResources.EditTaskAction, AppResources.DeleteButton);
+        if (action == AppResources.EditTaskAction)
+            OnTaskDoubleTapped(button, EventArgs.Empty);
+        else if (action == AppResources.DeleteButton)
+            OnDeleteClicked(new Button { CommandParameter = task }, EventArgs.Empty);
+    }
 }

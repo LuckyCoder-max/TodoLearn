@@ -4,7 +4,8 @@
              xmlns:strings="clr-namespace:TodoLearn.Resources.Strings"
              xmlns:models="clr-namespace:TodoLearn.Models"
              x:Class="TodoLearn.Views.TaskListView">
-    <Grid Padding="28,20" RowDefinitions="Auto, Auto, *, Auto" RowSpacing="20" BackgroundColor="{AppThemeBinding Light={StaticResource CanvasLight}, Dark={StaticResource CanvasDark}}">
+    <Grid x:Name="RootLayout" BackgroundColor="{AppThemeBinding Light={StaticResource CanvasLight}, Dark={StaticResource CanvasDark}}">
+    <Grid x:Name="ListLayout" HorizontalOptions="Center" Padding="0,24" RowDefinitions="Auto, Auto, *, Auto" RowSpacing="20" BackgroundColor="{AppThemeBinding Light={StaticResource CanvasLight}, Dark={StaticResource CanvasDark}}">
         <VerticalStackLayout Spacing="4">
             <Label x:Name="TitleLabel" FontSize="30" FontAttributes="Bold" />
             <Label Text="{Binding TodayText}" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
@@ -17,7 +18,77 @@
             </Grid>
         </Border>
 
-        <Grid Grid.RowSpan="4" Margin="-28,-20" Padding="24" ZIndex="10" BackgroundColor="#99000000" IsVisible="{Binding IsComposerExpanded}">
+        <CollectionView x:Name="TaskCollection" Grid.Row="2" ItemsSource="{Binding DisplayTasks}" SelectionMode="None">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Padding="24,48" Spacing="10">
+                    <Label Text="{x:Static strings:AppResources.EmptyTasksTitle}" FontSize="20" HorizontalTextAlignment="Center" />
+                    <Label Text="{x:Static strings:AppResources.EmptyTasksHint}" FontSize="13" HorizontalTextAlignment="Center" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="0,0,0,1" Padding="10,12" StrokeShape="RoundRectangle 10" StrokeThickness="0" BackgroundColor="Transparent">
+                    <Border.GestureRecognizers>
+                        <PointerGestureRecognizer PointerEntered="OnTaskPointerEntered" PointerExited="OnTaskPointerExited" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="36, *, Auto" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="10" RowSpacing="6">
+                        <CheckBox Grid.Row="0" Grid.Column="0" IsChecked="{Binding IsCompleted, Mode=OneWay}" CheckedChanged="OnTaskCompletionChanged" VerticalOptions="Start" />
+
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="5">
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="OnTaskDoubleTapped" />
+                            </VerticalStackLayout.GestureRecognizers>
+                            <Label Text="{Binding Text}" LineBreakMode="WordWrap" VerticalOptions="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsCompleted}" Value="True">
+                                        <Setter Property="TextDecorations" Value="Strikethrough" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <HorizontalStackLayout Spacing="6">
+                                <Label Text="{Binding CategoryName}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" VerticalOptions="Center" />
+                                <Label Text="⚑" FontSize="14" VerticalOptions="Center" ToolTipProperties.Text="{Binding PriorityText}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Priority}" Value="Low"><Setter Property="TextColor" Value="{StaticResource PriorityLowColor}" /></DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Priority}" Value="Medium"><Setter Property="TextColor" Value="{StaticResource PriorityMediumColor}" /></DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Priority}" Value="High"><Setter Property="TextColor" Value="{StaticResource PriorityHighColor}" /></DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+
+                                <Label Text="{Binding CompactDueAtText}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+
+                        <Button Grid.Row="0" Grid.Column="2" Text="⋯" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" FontSize="22" WidthRequest="40" HeightRequest="40" Padding="0" Clicked="OnTaskMenuClicked" SemanticProperties.Description="{x:Static strings:AppResources.TaskActions}" />
+
+
+                        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="*, Auto" ColumnSpacing="8" IsVisible="{Binding HasDescription}">
+                            <Label Grid.Column="0" Text="{Binding Description}" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" LineBreakMode="TailTruncation" MaxLines="1" SizeChanged="OnDescriptionLabelSizeChanged" PropertyChanged="OnDescriptionLabelPropertyChanged">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsDescriptionExpanded}" Value="True">
+                                        <Setter Property="MaxLines" Value="-1" />
+                                        <Setter Property="LineBreakMode" Value="WordWrap" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label Grid.Column="1" Text="{Binding ExpandToggleText}" IsVisible="{Binding ShowDescriptionToggle}" FontSize="12" TextColor="{StaticResource Primary}" VerticalOptions="End">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnDescriptionToggleTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+
+
+                        <BoxView Grid.Row="2" Grid.ColumnSpan="3" HeightRequest="1" Margin="0,10,0,0" Color="{AppThemeBinding Light={StaticResource OutlineLight}, Dark={StaticResource OutlineDark}}" />
+                    </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button x:Name="ClearCompletedButton" Grid.Row="3" Text="{x:Static strings:AppResources.ClearCompletedButton}" Clicked="OnClearCompletedClicked" HorizontalOptions="End" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" FontSize="12" />
+    </Grid>
+        <Grid Padding="24" ZIndex="10" BackgroundColor="#99000000" IsVisible="{Binding IsComposerExpanded}">
         <Border Padding="24" WidthRequest="480" MaximumWidthRequest="520" MaximumHeightRequest="600" HorizontalOptions="Center" VerticalOptions="Center" StrokeThickness="0" Background="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource SurfaceDark}}">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="12" />
@@ -51,79 +122,5 @@
             </ScrollView>
         </Border>
         </Grid>
-
-        <CollectionView x:Name="TaskCollection" Grid.Row="2" ItemsSource="{Binding DisplayTasks}" SelectionMode="None">
-            <CollectionView.EmptyView>
-                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Padding="24,48" Spacing="10">
-                    <Label Text="{x:Static strings:AppResources.EmptyTasksTitle}" FontSize="20" HorizontalTextAlignment="Center" />
-                    <Label Text="{x:Static strings:AppResources.EmptyTasksHint}" FontSize="13" HorizontalTextAlignment="Center" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border Margin="0,0,0,1" Padding="6,14" StrokeThickness="0" BackgroundColor="Transparent">
-                    <Grid ColumnDefinitions="36, *, Auto" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="10" RowSpacing="6">
-                        <CheckBox Grid.Row="0" Grid.Column="0" IsChecked="{Binding IsCompleted, Mode=OneWay}" CheckedChanged="OnTaskCompletionChanged" VerticalOptions="Start" />
-
-                        <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4">
-                            <VerticalStackLayout.GestureRecognizers>
-                                <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnTaskDoubleTapped" />
-                            </VerticalStackLayout.GestureRecognizers>
-                            <Label Text="{Binding Text}" LineBreakMode="WordWrap" VerticalOptions="Center">
-                                <Label.Triggers>
-                                    <DataTrigger TargetType="Label" Binding="{Binding IsCompleted}" Value="True">
-                                        <Setter Property="TextDecorations" Value="Strikethrough" />
-                                        <Setter Property="TextColor" Value="Gray" />
-                                    </DataTrigger>
-                                </Label.Triggers>
-                            </Label>
-                            <HorizontalStackLayout Spacing="6">
-                                <Label Text="{Binding CategoryName}" FontSize="12" TextColor="Gray" VerticalOptions="Center" />
-                                <Frame WidthRequest="12" HeightRequest="12" CornerRadius="6" Padding="0" HasShadow="False" VerticalOptions="Center">
-                                    <Frame.Triggers>
-                                        <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="Low">
-                                            <Setter Property="BackgroundColor" Value="{StaticResource PriorityLowColor}" />
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="Medium">
-                                            <Setter Property="BackgroundColor" Value="{StaticResource PriorityMediumColor}" />
-                                        </DataTrigger>
-                                        <DataTrigger TargetType="Frame" Binding="{Binding Priority}" Value="High">
-                                            <Setter Property="BackgroundColor" Value="{StaticResource PriorityHighColor}" />
-                                        </DataTrigger>
-                                    </Frame.Triggers>
-                                </Frame>
-                                <Label Text="{Binding DueAtText}" FontSize="12" TextColor="Gray" VerticalOptions="Center" />
-                            </HorizontalStackLayout>
-                        </VerticalStackLayout>
-
-                        <HorizontalStackLayout Grid.Row="0" Grid.Column="2" Spacing="4" VerticalOptions="Start">
-                            <Button Text="{x:Static strings:AppResources.EditTaskAction}" Clicked="OnTaskDoubleTapped" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" Padding="8,4" FontSize="12" />
-                            <Button Text="{x:Static strings:AppResources.DeleteButton}" Clicked="OnDeleteClicked" CommandParameter="{Binding .}" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" Padding="8,4" FontSize="12" />
-                        </HorizontalStackLayout>
-
-                        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="*, Auto" ColumnSpacing="8" IsVisible="{Binding HasDescription}">
-                            <Label Grid.Column="0" Text="{Binding Description}" FontSize="13" TextColor="Gray" LineBreakMode="TailTruncation" MaxLines="1" SizeChanged="OnDescriptionLabelSizeChanged" PropertyChanged="OnDescriptionLabelPropertyChanged">
-                                <Label.Triggers>
-                                    <DataTrigger TargetType="Label" Binding="{Binding IsDescriptionExpanded}" Value="True">
-                                        <Setter Property="MaxLines" Value="-1" />
-                                        <Setter Property="LineBreakMode" Value="WordWrap" />
-                                    </DataTrigger>
-                                </Label.Triggers>
-                            </Label>
-                            <Label Grid.Column="1" Text="{Binding ExpandToggleText}" IsVisible="{Binding ShowDescriptionToggle}" FontSize="12" TextColor="{StaticResource Primary}" VerticalOptions="End">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnDescriptionToggleTapped" />
-                                </Label.GestureRecognizers>
-                            </Label>
-                        </Grid>
-
-
-                    </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
-        <Button x:Name="ClearCompletedButton" Grid.Row="3" Text="{x:Static strings:AppResources.ClearCompletedButton}" Clicked="OnClearCompletedClicked" HorizontalOptions="End" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" FontSize="12" />
     </Grid>
 </ContentView>
