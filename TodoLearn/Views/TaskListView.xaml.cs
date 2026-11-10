@@ -302,21 +302,54 @@ public partial class TaskListView : ContentView
         }
     }
 
+    private bool _isDeleting;
+
     private async void OnDeleteClicked(object? sender, EventArgs e)
     {
-        if (sender is not Button { CommandParameter: TaskItem task })
+        if (_isDeleting || sender is not Button { CommandParameter: TaskItem task } || Window?.Page is not { } page)
             return;
 
-        await _taskService.DeleteAsync(task);
-        Tasks.Remove(task);
-        RefreshDisplay();
-        SimpleLogger.Log(string.Format(AppResources.TaskDeletedLog, task.Text, task.Id));
+        _isDeleting = true;
+        try
+        {
+            var confirmed = await page.DisplayAlertAsync(AppResources.DeleteTaskTitle,
+                string.Format(AppResources.DeleteTaskConfirmation, task.Text),
+                AppResources.DeleteButton, AppResources.CancelButton);
+            if (!confirmed)
+                return;
+
+            await _taskService.DeleteAsync(task);
+            Tasks.Remove(task);
+            RefreshDisplay();
+            SimpleLogger.Log(string.Format(AppResources.TaskDeletedLog, task.Text, task.Id));
+        }
+        catch
+        {
+            await page.DisplayAlertAsync(AppResources.DeleteFailedTitle, AppResources.DeleteFailedMessage, AppResources.OkButton);
+        }
+        finally
+        {
+            _isDeleting = false;
+        }
     }
 
     private async void OnClearCompletedClicked(object? sender, EventArgs e)
     {
+        if (_isDeleting || Window?.Page is not { } page)
+            return;
+        var count = Tasks.Count(task => task.IsCompleted && (!_categoryView || task.Category == _selectedCategory));
+        if (count == 0)
+            return;
+
+        _isDeleting = true;
         try
         {
+            var confirmed = await page.DisplayAlertAsync(AppResources.ClearCompletedButton,
+                string.Format(AppResources.ClearCompletedConfirmation, count),
+                AppResources.DeleteButton, AppResources.CancelButton);
+            if (!confirmed)
+                return;
+
             await _taskService.ClearCompletedAsync(_categoryView, _selectedCategory);
             foreach (var task in Tasks.Where(task => task.IsCompleted && (!_categoryView || task.Category == _selectedCategory)).ToList())
                 Tasks.Remove(task);
@@ -324,14 +357,11 @@ public partial class TaskListView : ContentView
         }
         catch
         {
-            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
-            if (page is not null)
-            {
-                await page.DisplayAlertAsync(
-                    AppResources.TaskSaveFailedTitle,
-                    AppResources.TaskSaveFailedMessage,
-                    AppResources.OkButton);
-            }
+            await page.DisplayAlertAsync(AppResources.DeleteFailedTitle, AppResources.DeleteFailedMessage, AppResources.OkButton);
+        }
+        finally
+        {
+            _isDeleting = false;
         }
     }
 

@@ -95,6 +95,11 @@ public static class AppResources
     public static string NewTaskSectionTitle => GetString(nameof(NewTaskSectionTitle));
     public static string AddButton => GetString(nameof(AddButton));
     public static string DeleteButton => GetString(nameof(DeleteButton));
+    public static string DeleteTaskTitle => GetString(nameof(DeleteTaskTitle));
+    public static string DeleteTaskConfirmation => GetString(nameof(DeleteTaskConfirmation));
+    public static string ClearCompletedConfirmation => GetString(nameof(ClearCompletedConfirmation));
+    public static string DeleteFailedTitle => GetString(nameof(DeleteFailedTitle));
+    public static string DeleteFailedMessage => GetString(nameof(DeleteFailedMessage));
     public static string EditTaskPlaceholder => GetString(nameof(EditTaskPlaceholder));
     public static string DescriptionPlaceholder => GetString(nameof(DescriptionPlaceholder));
     public static string PriorityLabel => GetString(nameof(PriorityLabel));
