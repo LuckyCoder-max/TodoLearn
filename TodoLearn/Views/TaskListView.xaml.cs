@@ -8,6 +8,27 @@ namespace TodoLearn.Views;
 public partial class TaskListView : ContentView
 {
     private readonly TaskService _taskService;
+    private TaskComposerView? _composer;
+    private TaskComposerView Composer
+    {
+        get
+        {
+            if (_composer is not null) return _composer;
+            _composer = new TaskComposerView();
+            _composer.SaveRequested += OnAddTaskClicked;
+            _composer.CancelRequested += OnComposerToggleClicked;
+            ComposerHost.Content = _composer;
+            return _composer;
+        }
+    }
+    private Entry NewTaskEntry => Composer.NewTaskEntry;
+    private Editor NewTaskDescriptionEditor => Composer.NewTaskDescriptionEditor;
+    private Picker NewTaskPriorityPicker => Composer.NewTaskPriorityPicker;
+    private DatePicker NewTaskDatePicker => Composer.NewTaskDatePicker;
+    private TimePicker NewTaskTimePicker => Composer.NewTaskTimePicker;
+    private Picker NewTaskCategoryPicker => Composer.NewTaskCategoryPicker;
+    private Label ValidationLabel => Composer.ValidationLabel;
+    private Button CreateTaskButton => Composer.CreateTaskButton;
     private TaskItem? _editingTask;
     public string ComposerTitle => _editingTask is null ? AppResources.NewTaskSectionTitle : AppResources.EditTaskAction;
     public string ComposerSaveText => _editingTask is null ? AppResources.AddButton : AppResources.SaveButton;
@@ -125,7 +146,6 @@ public partial class TaskListView : ContentView
         _categoryView = true;
         _selectedCategory = category;
         TitleLabel.Text = CategoryOptions[category is { } value ? (int)value + 1 : 0];
-        NewTaskCategoryPicker.SelectedIndex = category is { } selected ? (int)selected + 1 : 0;
         RefreshDisplay();
     }
 
@@ -141,8 +161,6 @@ public partial class TaskListView : ContentView
         Unloaded += DetachShortcuts;
 #endif
         TitleLabel.Text = GetTitle(Filter);
-        NewTaskDatePicker.Date = DateTime.Today;
-        NewTaskTimePicker.Time = DateTime.Now.TimeOfDay;
     }
 
     public async Task LoadTasksAsync()
