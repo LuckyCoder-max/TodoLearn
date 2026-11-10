@@ -34,12 +34,15 @@
                 <RoundRectangle CornerRadius="12" />
             </Border.StrokeShape>
             <VerticalStackLayout Spacing="10">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                 <Label x:Name="CurrentUsernameLabel"
                        FontSize="15"
                        FontAttributes="Bold"
                        LineBreakMode="TailTruncation"
                        MaxLines="1"
                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" VerticalOptions="Center" />
+                <Button x:Name="SettingsButton" Grid.Column="1" Text="⚙" FontSize="22" WidthRequest="36" HeightRequest="36" Padding="0" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" Clicked="OnSettingsClicked" ToolTipProperties.Text="{x:Static strings:AppResources.Settings}" SemanticProperties.Description="{x:Static strings:AppResources.Settings}" />
+                </Grid>
                 <Button Text="{x:Static strings:AppResources.LogoutButton}"
                         Clicked="OnLogoutClicked"
                         Margin="0"

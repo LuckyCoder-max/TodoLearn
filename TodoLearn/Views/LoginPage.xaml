@@ -4,6 +4,7 @@
              xmlns:strings="clr-namespace:TodoLearn.Resources.Strings"
              x:Class="TodoLearn.Views.LoginPage"
              Title="{x:Static strings:AppResources.LoginPageTitle}">
+    <Grid>
     <VerticalStackLayout Padding="20" Spacing="15" VerticalOptions="Center" MaximumWidthRequest="360" HorizontalOptions="Center">
         <Label Text="{x:Static strings:AppResources.AppName}" FontSize="24" HorizontalOptions="Center" />
         <Entry x:Name="UsernameEntry" Placeholder="{x:Static strings:AppResources.UsernamePlaceholder}" />
@@ -29,4 +30,6 @@
         </Border>
         <Label x:Name="StatusLabel" TextColor="Red" IsVisible="False" />
     </VerticalStackLayout>
+        <Button Text="⚙" FontSize="22" WidthRequest="40" HeightRequest="40" Padding="0" Margin="16" HorizontalOptions="End" VerticalOptions="Start" Clicked="OnSettingsClicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#404040, Dark=#ACACAC}" ToolTipProperties.Text="{x:Static strings:AppResources.Settings}" SemanticProperties.Description="{x:Static strings:AppResources.Settings}" />
+    </Grid>
 </ContentPage>

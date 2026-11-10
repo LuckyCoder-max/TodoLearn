@@ -101,6 +101,13 @@ namespace TodoLearn
             _inactivityService?.Reset();
         }
 
+        private async void OnSettingsClicked(object? sender, EventArgs e)
+        {
+            if (!SettingsButton.IsEnabled) return;
+            SettingsButton.IsEnabled = false;
+            try { await Navigation.PushModalAsync(new Views.SettingsPage()); }
+            finally { SettingsButton.IsEnabled = true; }
+        }
 
         private void OnLogoutClicked(object? sender, EventArgs e)
         {

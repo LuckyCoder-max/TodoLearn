@@ -8,6 +8,14 @@ namespace TodoLearn.Views
 {
     public partial class LoginPage : ContentPage
     {
+        private async void OnSettingsClicked(object? sender, EventArgs e)
+        {
+            if (sender is not Button button || !button.IsEnabled) return;
+            button.IsEnabled = false;
+            try { await Navigation.PushModalAsync(new SettingsPage()); }
+            finally { button.IsEnabled = true; }
+        }
+
         private readonly InactivityService _inactivityService;
         private readonly AuthService _authService;
         private readonly AuthSessionService _authSessionService;

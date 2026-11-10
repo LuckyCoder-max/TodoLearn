@@ -118,5 +118,12 @@
   <data name="DueInHoursMinutes" xml:space="preserve"><value>· in {0}h {1}m</value></data>
   <data name="DueInDaysHours" xml:space="preserve"><value>· in {0}d {1}h</value></data>
   <data name="NextTaskCompactFormat" xml:space="preserve"><value>Next: {0}</value></data>
+  <data name="Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Appearance" xml:space="preserve"><value>Appearance</value></data>
+  <data name="ThemeDescription" xml:space="preserve"><value>Choose your theme. Changes apply immediately and are saved for your next visit.</value></data>
+  <data name="SystemTheme" xml:space="preserve"><value>Use system setting</value></data>
+  <data name="LightTheme" xml:space="preserve"><value>Light</value></data>
+  <data name="DarkTheme" xml:space="preserve"><value>Dark</value></data>
+  <data name="Done" xml:space="preserve"><value>Done</value></data>
   <data name="DueTimeLabel" xml:space="preserve"><value>Due time · 24-hour</value></data>
 </root>

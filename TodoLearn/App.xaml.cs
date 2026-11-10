@@ -16,6 +16,7 @@ namespace TodoLearn
         public App(Views.LoginPage loginPage, InactivityService inactivityService, AuthSessionService authSessionService, TaskReminderService taskReminderService, IServiceProvider services)
         {
             InitializeComponent();
+            ThemeSettings.Apply(this);
             _loginPage = loginPage;
             _inactivityService = inactivityService;
             _authSessionService = authSessionService;
@@ -29,6 +30,7 @@ namespace TodoLearn
             _inactivityService.OnTimeout += OnUserInactiveTimeout;
             _inactivityService.Start();
             var window = new Window(_loginPage);
+            window.Created += (_, _) => ThemeSettings.ApplyToWindow(window);
             window.Activated += OnWindowActivated;
             window.Deactivated += OnWindowDeactivated;
             return window;
