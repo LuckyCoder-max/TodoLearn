@@ -32,6 +32,7 @@ public partial class TaskListView : ContentView
     private TaskItem? _editingTask;
     public string ComposerTitle => _editingTask is null ? AppResources.NewTaskSectionTitle : AppResources.EditTaskAction;
     public string ComposerSaveText => _editingTask is null ? AppResources.AddButton : AppResources.SaveButton;
+    private bool _isComposerClosing;
     private bool _isComposerExpanded;
     public bool IsComposerExpanded
     {
@@ -45,13 +46,13 @@ public partial class TaskListView : ContentView
 
     public string TodayText => DateTime.Today.ToString("dddd, d MMMM", System.Globalization.CultureInfo.CurrentCulture);
 
-    private void OnComposerToggleClicked(object? sender, EventArgs e)
+    private async void OnComposerToggleClicked(object? sender, EventArgs e)
     {
-        if (!CreateTaskButton.IsEnabled)
+        if (!CreateTaskButton.IsEnabled || _isComposerClosing)
             return;
         if (IsComposerExpanded)
         {
-            CloseComposer();
+            await CloseComposerAsync();
             return;
         }
         _editingTask = null;
@@ -62,27 +63,40 @@ public partial class TaskListView : ContentView
         NewTaskDatePicker.Date = DateTime.Today;
         NewTaskTimePicker.Time = DateTime.Now.TimeOfDay;
         NewTaskCategoryPicker.SelectedIndex = _categoryView && _selectedCategory is { } category ? (int)category + 1 : 0;
-        OpenComposer();
+        await OpenComposerAsync();
     }
 
-    private void OpenComposer()
+    private async Task OpenComposerAsync()
     {
         ValidationLabel.IsVisible = false;
         OnPropertyChanged(nameof(ComposerTitle));
         OnPropertyChanged(nameof(ComposerSaveText));
+        Composer.PrepareToShow();
         IsComposerExpanded = true;
         QuickComposer.IsEnabled = false;
         TaskCollection.IsEnabled = false;
-        Dispatcher.Dispatch(() => NewTaskEntry.Focus());
+        await Composer.ShowAsync();
     }
 
-    private void CloseComposer()
+    private async Task CloseComposerAsync()
     {
-        IsComposerExpanded = false;
-        _editingTask = null;
-        QuickComposer.IsEnabled = true;
-        TaskCollection.IsEnabled = true;
-        QuickTaskEntry.Focus();
+        if (!IsComposerExpanded || _isComposerClosing)
+            return;
+        _isComposerClosing = true;
+        Composer.IsEnabled = false;
+        try
+        {
+            await Composer.HideAsync();
+            IsComposerExpanded = false;
+            QuickComposer.IsEnabled = true;
+            TaskCollection.IsEnabled = true;
+            QuickTaskEntry.Focus();
+        }
+        finally
+        {
+            Composer.IsEnabled = true;
+            _isComposerClosing = false;
+        }
     }
 
 #if WINDOWS
@@ -102,7 +116,7 @@ public partial class TaskListView : ContentView
     private void AddShortcut(Windows.System.VirtualKey key, Windows.System.VirtualKeyModifiers modifiers, bool save)
     {
         var shortcut = new Microsoft.UI.Xaml.Input.KeyboardAccelerator { Key = key, Modifiers = modifiers };
-        shortcut.Invoked += (_, args) =>
+        shortcut.Invoked += async (_, args) =>
         {
             if (!IsComposerExpanded)
                 return;
@@ -112,7 +126,7 @@ public partial class TaskListView : ContentView
             if (save)
                 OnAddTaskClicked(this, EventArgs.Empty);
             else
-                CloseComposer();
+                await CloseComposerAsync();
         };
         _keyboardHost!.KeyboardAccelerators.Add(shortcut);
         _shortcuts.Add(shortcut);
@@ -189,7 +203,7 @@ public partial class TaskListView : ContentView
 
     private async void OnAddTaskClicked(object? sender, EventArgs e)
     {
-        if (!CreateTaskButton.IsEnabled)
+        if (!CreateTaskButton.IsEnabled || _isComposerClosing)
             return;
         var text = NewTaskEntry.Text?.Trim();
         if (string.IsNullOrWhiteSpace(text))
@@ -261,29 +275,32 @@ public partial class TaskListView : ContentView
         {
             CreateTaskButton.IsEnabled = true;
         }
+        RefreshDisplay();
+        await CloseComposerAsync();
         QuickTaskEntry.Text = string.Empty;
         NewTaskEntry.Text = string.Empty;
         NewTaskDescriptionEditor.Text = string.Empty;
         NewTaskPriorityPicker.SelectedIndex = 0;
         NewTaskDatePicker.Date = DateTime.Today;
         NewTaskTimePicker.Time = DateTime.Now.TimeOfDay;
-        RefreshDisplay();
-        CloseComposer();
+
     }
 
     private async void OnTaskCompletionChanged(object? sender, CheckedChangedEventArgs e)
     {
-        if (sender is not CheckBox { BindingContext: TaskItem task })
+        if (sender is not CheckBox { BindingContext: TaskItem task } checkbox)
             return;
 
         if (task.IsCompleted == e.Value)
             return;
 
         var previousValue = task.IsCompleted;
+        checkbox.IsEnabled = false;
         task.IsCompleted = e.Value;
+        var summary = (checkbox.Parent as Grid)?.Children.OfType<VerticalStackLayout>().FirstOrDefault();
         try
         {
-            await _taskService.UpdateAsync(task);
+            await Task.WhenAll(_taskService.UpdateAsync(task), Helpers.UiMotion.SetCompletedAsync(checkbox, summary, e.Value));
             UpdateClearCompletedButton();
         }
         catch
@@ -299,6 +316,13 @@ public partial class TaskListView : ContentView
                     AppResources.ClearCompletedFailedMessage,
                     AppResources.OkButton);
             }
+        }
+        finally
+        {
+            checkbox.Scale = 1;
+            checkbox.IsEnabled = true;
+            if (summary?.BindingContext is TaskItem bound)
+                summary.Opacity = bound.IsCompleted ? 0.55 : 1;
         }
     }
 
@@ -365,7 +389,7 @@ public partial class TaskListView : ContentView
         }
     }
 
-    private void OnTaskDoubleTapped(object? sender, EventArgs e)
+    private async void OnTaskDoubleTapped(object? sender, EventArgs e)
     {
         if (IsComposerExpanded || sender is not BindableObject { BindingContext: TaskItem task })
             return;
@@ -377,7 +401,7 @@ public partial class TaskListView : ContentView
         NewTaskDatePicker.Date = task.DueAt.Date;
         NewTaskTimePicker.Time = task.DueAt.TimeOfDay;
         NewTaskCategoryPicker.SelectedIndex = task.CategoryIndex;
-        OpenComposer();
+        await OpenComposerAsync();
     }
 
     private void OnDescriptionToggleTapped(object? sender, EventArgs e)
@@ -521,5 +545,14 @@ public partial class TaskListView : ContentView
             if (page is not null) await page.DisplayAlertAsync(AppResources.TaskSaveFailedTitle, AppResources.TaskSaveFailedMessage, AppResources.OkButton);
         }
         finally { checkbox.IsEnabled = true; }
+    }
+
+    private void OnTaskSummaryBindingContextChanged(object? sender, EventArgs e)
+    {
+        if (sender is VisualElement { BindingContext: TaskItem task } summary)
+        {
+            summary.CancelAnimations();
+            summary.Opacity = task.IsCompleted ? 0.55 : 1;
+        }
     }
 }

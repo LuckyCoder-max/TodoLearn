@@ -50,7 +50,12 @@
                     <Grid ColumnDefinitions="36, *, Auto" RowDefinitions="Auto, Auto, Auto, Auto" ColumnSpacing="10" RowSpacing="6">
                         <CheckBox Grid.Row="0" Grid.Column="0" IsChecked="{Binding IsCompleted, Mode=OneWay}" CheckedChanged="OnTaskCompletionChanged" VerticalOptions="Start" />
 
-                        <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="5">
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="5" BindingContextChanged="OnTaskSummaryBindingContextChanged">
+                            <VerticalStackLayout.Triggers>
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding IsCompleted}" Value="True">
+                                    <Setter Property="Opacity" Value="0.55" />
+                                </DataTrigger>
+                            </VerticalStackLayout.Triggers>
                             <VerticalStackLayout.GestureRecognizers>
                                 <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="OnTaskDoubleTapped" />
                             </VerticalStackLayout.GestureRecognizers>
