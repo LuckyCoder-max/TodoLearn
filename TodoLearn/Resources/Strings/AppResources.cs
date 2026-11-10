@@ -5,6 +5,7 @@ namespace TodoLearn.Resources.Strings;
 
 public static class AppResources
 {
+    public static string DueTimeLabel => GetString(nameof(DueTimeLabel));
     public static string DatePickerFormat => GetString(nameof(DatePickerFormat));
     public static string TaskActions => GetString(nameof(TaskActions));
     public static string DueTodayFormat => GetString(nameof(DueTodayFormat));
