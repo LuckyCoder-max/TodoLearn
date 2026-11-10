@@ -104,5 +104,10 @@
   <data name="TaskActions" xml:space="preserve"><value>Task actions</value></data>
   <data name="DueTodayFormat" xml:space="preserve"><value>Today, {0:HH:mm}</value></data>
   <data name="DatePickerFormat" xml:space="preserve"><value>dd MMM yyyy</value></data>
+  <data name="Subtasks" xml:space="preserve"><value>Subtasks · optional</value></data>
+  <data name="StepPlaceholder" xml:space="preserve"><value>Add a step…</value></data>
+  <data name="AddStep" xml:space="preserve"><value>Add step</value></data>
+  <data name="RemoveStep" xml:space="preserve"><value>Remove step</value></data>
+  <data name="StepsProgressFormat" xml:space="preserve"><value>{0} of {1} steps</value></data>
   <data name="DueTimeLabel" xml:space="preserve"><value>Due time · 24-hour</value></data>
 </root>

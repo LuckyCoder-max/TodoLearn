@@ -9,7 +9,7 @@
                 <RoundRectangle CornerRadius="12" />
             </Border.StrokeShape>
             <ScrollView>
-            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="12">
+            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="12">
                 <Label Text="{Binding ComposerTitle}" FontSize="22" FontAttributes="Bold" />
                 <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="8">
                     <Entry x:Name="NewTaskEntry" x:FieldModifier="internal" Grid.Column="0" Placeholder="{x:Static strings:AppResources.AddTaskPlaceholder}" ReturnType="Next" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" PlaceholderColor="{StaticResource Gray500}" />
@@ -29,8 +29,27 @@
                     <Label Text="{x:Static strings:AppResources.CategoryLabel}" VerticalOptions="Center" />
                     <Picker x:Name="NewTaskCategoryPicker" x:FieldModifier="internal" Grid.Column="1" ItemsSource="{Binding CategoryOptions}" SelectedIndex="0" />
                 </Grid>
-                <Label x:Name="ValidationLabel" x:FieldModifier="internal" Grid.Row="7" IsVisible="False" TextColor="{StaticResource PriorityHighColor}" FontSize="12" />
-                <HorizontalStackLayout Grid.Row="8" Spacing="12" HorizontalOptions="End" Margin="0,8,0,0">
+                        <VerticalStackLayout Grid.Row="7" Spacing="8">
+                            <Label Text="{x:Static strings:AppResources.Subtasks}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+                            <VerticalStackLayout Spacing="4" BindableLayout.ItemsSource="{Binding DraftSteps, Source={x:Reference ComposerRoot}}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnDefinitions="32,*,40" ColumnSpacing="6">
+                                            <CheckBox IsChecked="{Binding IsCompleted, Mode=TwoWay}" />
+                                            <Entry Grid.Column="1" Text="{Binding Text, Mode=TwoWay}" Placeholder="{x:Static strings:AppResources.StepPlaceholder}" />
+                                            <Button Grid.Column="2" Text="×" Padding="0" BackgroundColor="Transparent" Clicked="OnRemoveStepClicked"
+                                                    SemanticProperties.Description="{x:Static strings:AppResources.RemoveStep}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <Entry x:Name="StepEntry" Placeholder="{x:Static strings:AppResources.StepPlaceholder}" Completed="OnAddStepClicked" />
+                                <Button Grid.Column="1" Text="{x:Static strings:AppResources.AddStep}" BackgroundColor="Transparent" Clicked="OnAddStepClicked" />
+                            </Grid>
+                        </VerticalStackLayout>
+                <Label x:Name="ValidationLabel" x:FieldModifier="internal" Grid.Row="8" IsVisible="False" TextColor="{StaticResource PriorityHighColor}" FontSize="12" />
+                <HorizontalStackLayout Grid.Row="9" Spacing="12" HorizontalOptions="End" Margin="0,8,0,0">
                     <Button Text="{x:Static strings:AppResources.CancelButton}" Clicked="OnCancelClicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
                     <Button x:Name="CreateTaskButton" x:FieldModifier="internal" Text="{Binding ComposerSaveText}" Clicked="OnSaveClicked" BackgroundColor="{StaticResource Primary}" TextColor="White" />
                 </HorizontalStackLayout>

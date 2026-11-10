@@ -31,7 +31,7 @@
                     <Border.GestureRecognizers>
                         <PointerGestureRecognizer PointerEntered="OnTaskPointerEntered" PointerExited="OnTaskPointerExited" />
                     </Border.GestureRecognizers>
-                    <Grid ColumnDefinitions="36, *, Auto" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="10" RowSpacing="6">
+                    <Grid ColumnDefinitions="36, *, Auto" RowDefinitions="Auto, Auto, Auto, Auto" ColumnSpacing="10" RowSpacing="6">
                         <CheckBox Grid.Row="0" Grid.Column="0" IsChecked="{Binding IsCompleted, Mode=OneWay}" CheckedChanged="OnTaskCompletionChanged" VerticalOptions="Start" />
 
                         <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="5">
@@ -79,7 +79,26 @@
                         </Grid>
 
 
-                        <BoxView Grid.Row="2" Grid.ColumnSpan="3" HeightRequest="1" Margin="0,10,0,0" Color="{AppThemeBinding Light={StaticResource OutlineLight}, Dark={StaticResource OutlineDark}}" />
+                        <VerticalStackLayout Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Spacing="4" IsVisible="{Binding HasSteps}">
+                            <Button Text="{Binding StepsProgress}" Clicked="OnStepsToggleClicked" HorizontalOptions="Start" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" Padding="0" FontSize="12" />
+                            <VerticalStackLayout IsVisible="{Binding StepsExpanded}" BindableLayout.ItemsSource="{Binding Steps}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnDefinitions="32,*" ColumnSpacing="6" Padding="0,2">
+                                            <CheckBox IsChecked="{Binding IsCompleted, Mode=OneWay}" CheckedChanged="OnStepCompletionChanged" />
+                                            <Label Grid.Column="1" Text="{Binding Text}" VerticalOptions="Center" FontSize="13" LineBreakMode="WordWrap">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsCompleted}" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Strikethrough" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                        <BoxView Grid.Row="3" Grid.ColumnSpan="3" HeightRequest="1" Margin="0,10,0,0" Color="{AppThemeBinding Light={StaticResource OutlineLight}, Dark={StaticResource OutlineDark}}" />
                     </Grid>
                     </Border>
                 </DataTemplate>

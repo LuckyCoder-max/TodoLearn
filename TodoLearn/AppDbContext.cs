@@ -17,6 +17,11 @@ namespace TodoLearn
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<TaskItem>().HasMany(task => task.Steps).WithOne()
+                .HasForeignKey(step => step.TaskItemId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<TaskStep>().ToTable("TaskSteps");
+            modelBuilder.Entity<TaskStep>().Property(step => step.Text).IsRequired();
+            modelBuilder.Entity<TaskStep>().HasIndex(step => new { step.TaskItemId, step.Position });
 
             modelBuilder.Entity<TaskItem>().Ignore(t => t.IsEditing);
             modelBuilder.Entity<TaskItem>().Ignore(t => t.CategoryIndex);

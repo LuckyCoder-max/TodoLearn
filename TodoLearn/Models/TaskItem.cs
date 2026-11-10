@@ -40,12 +40,45 @@ namespace TodoLearn.Models
 
         public TaskItem()
         {
+            Steps.CollectionChanged += (_, args) =>
+            {
+                if (args.OldItems is not null)
+                    foreach (TaskStep step in args.OldItems) step.PropertyChanged -= OnStepChanged;
+                if (args.NewItems is not null)
+                    foreach (TaskStep step in args.NewItems) step.PropertyChanged += OnStepChanged;
+                NotifySteps();
+            };
             CreatedAt = DateTime.Now;
             DueAt = CreatedAt;
             Priority = TaskPriority.Low;
         }
 
         private string? _text;
+        public System.Collections.ObjectModel.ObservableCollection<TaskStep> Steps { get; } = new();
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public bool HasSteps => Steps.Count > 0;
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public string StepsProgress => string.Format(AppResources.StepsProgressFormat, Steps.Count(step => step.IsCompleted), Steps.Count)
+            + (StepsExpanded ? " ▴" : " ▾");
+        private bool _stepsExpanded;
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public bool StepsExpanded
+        {
+            get => _stepsExpanded;
+            set
+            {
+                if (_stepsExpanded == value) return;
+                _stepsExpanded = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StepsExpanded)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StepsProgress)));
+            }
+        }
+        private void OnStepChanged(object? sender, PropertyChangedEventArgs args) => NotifySteps();
+        private void NotifySteps()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasSteps)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StepsProgress)));
+        }
         public string? Text
         {
             get => _text;

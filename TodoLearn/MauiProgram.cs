@@ -77,6 +77,16 @@ namespace ToDoListApp
                 EnsureTaskReminderColumn(db);
                 EnsureTaskReminderActionColumns(db);
                 EnsureTaskAccountColumn(db);
+                db.Database.ExecuteSqlRaw("""
+                    CREATE TABLE IF NOT EXISTS "TaskSteps" (
+                        "Id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                        "TaskItemId" INTEGER NOT NULL REFERENCES "Tasks" ("Id") ON DELETE CASCADE,
+                        "Position" INTEGER NOT NULL,
+                        "Text" TEXT NOT NULL,
+                        "IsCompleted" INTEGER NOT NULL
+                    );
+                    CREATE INDEX IF NOT EXISTS "IX_TaskSteps_TaskItemId_Position" ON "TaskSteps" ("TaskItemId", "Position");
+                    """);
                 if (!db.Database.SqlQueryRaw<long>("SELECT COUNT(*) AS Value FROM pragma_table_info('Tasks') WHERE name = 'Category'").Any(count => count > 0))
                     db.Database.ExecuteSqlRaw("ALTER TABLE \"Tasks\" ADD COLUMN \"Category\" INTEGER NULL;");
             }

@@ -33,6 +33,7 @@ public sealed class TaskService
             await db.Database.ExecuteSqlInterpolatedAsync(
                 $"UPDATE \"Tasks\" SET \"UserAccountId\" = {accountId} WHERE \"UserAccountId\" IS NULL;");
             _tasks = await db.Tasks
+                .Include(task => task.Steps.OrderBy(step => step.Position))
                 .Where(task => task.UserAccountId == accountId)
                 .OrderBy(task => task.CreatedAt)
                 .ToListAsync();
@@ -45,7 +46,7 @@ public sealed class TaskService
         }
     }
 
-    public async Task<TaskItem> AddAsync(string text, string? description, TaskPriority priority, DateTime dueAt, TaskCategory? category = null)
+    public async Task<TaskItem> AddAsync(string text, string? description, TaskPriority priority, DateTime dueAt, TaskCategory? category = null, IEnumerable<TaskStep>? steps = null)
     {
         var accountId = GetCurrentAccountId();
         var task = new TaskItem
@@ -59,6 +60,11 @@ public sealed class TaskService
         };
         await using var db = await _dbFactory.CreateDbContextAsync();
         db.Tasks.Add(task);
+        foreach (var step in steps ?? [])
+        {
+            if (!string.IsNullOrWhiteSpace(step.Text))
+                task.Steps.Add(new TaskStep { Text = step.Text.Trim(), Position = task.Steps.Count, IsCompleted = step.IsCompleted });
+        }
         await db.SaveChangesAsync();
 
         if (_cachedAccountId == accountId)
@@ -73,7 +79,7 @@ public sealed class TaskService
             return;
 
         await using var db = await _dbFactory.CreateDbContextAsync();
-        var storedTask = await db.Tasks.FirstOrDefaultAsync(item =>
+        var storedTask = await db.Tasks.Include(item => item.Steps).FirstOrDefaultAsync(item =>
             item.Id == task.Id && item.UserAccountId == accountId);
         if (storedTask is null)
             return;
@@ -82,7 +88,45 @@ public sealed class TaskService
             task.ResetReminderState();
 
         db.Entry(storedTask).CurrentValues.SetValues(task);
+        var desiredSteps = task.Steps.Where(step => !string.IsNullOrWhiteSpace(step.Text)).ToList();
+        foreach (var removed in storedTask.Steps.Where(step => !desiredSteps.Any(desired => desired.Id == step.Id)).ToList())
+            db.Remove(removed);
+        var savedSteps = new List<(TaskStep Draft, TaskStep Stored)>();
+        for (var index = 0; index < desiredSteps.Count; index++)
+        {
+            var draft = desiredSteps[index];
+            var stored = draft.Id == 0 ? null : storedTask.Steps.SingleOrDefault(step => step.Id == draft.Id);
+            if (draft.Id != 0 && stored is null)
+                throw new InvalidOperationException("The subtask does not belong to this task.");
+            if (stored is null)
+            {
+                stored = new TaskStep();
+                storedTask.Steps.Add(stored);
+            }
+            stored.Text = draft.Text.Trim();
+            stored.IsCompleted = draft.IsCompleted;
+            stored.Position = index;
+            savedSteps.Add((draft, stored));
+        }
         await db.SaveChangesAsync();
+        foreach (var (draft, stored) in savedSteps)
+        {
+            draft.Id = stored.Id;
+            draft.TaskItemId = stored.TaskItemId;
+            draft.Position = stored.Position;
+        }
+    }
+
+    public async Task SetStepCompletedAsync(TaskItem task, TaskStep step, bool completed)
+    {
+        var accountId = GetCurrentAccountId();
+        await using var db = await _dbFactory.CreateDbContextAsync();
+        if (!await db.Tasks.AnyAsync(item => item.Id == task.Id && item.UserAccountId == accountId))
+            throw new InvalidOperationException("The task is not available to this account.");
+        var stored = await db.Set<TaskStep>().SingleAsync(item => item.Id == step.Id && item.TaskItemId == task.Id);
+        stored.IsCompleted = completed;
+        await db.SaveChangesAsync();
+        step.IsCompleted = completed;
     }
 
     public async Task<bool> MarkReminderPendingAsync(TaskItem task, DateTime dueAt, DateTime now)

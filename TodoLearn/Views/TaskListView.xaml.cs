@@ -56,6 +56,7 @@ public partial class TaskListView : ContentView
         }
         _editingTask = null;
         NewTaskEntry.Text = QuickTaskEntry.Text;
+        Composer.SetSteps([]);
         NewTaskDescriptionEditor.Text = string.Empty;
         NewTaskPriorityPicker.SelectedIndex = 0;
         NewTaskDatePicker.Date = DateTime.Today;
@@ -198,6 +199,7 @@ public partial class TaskListView : ContentView
         ValidationLabel.IsVisible = false;
 
         var description = NewTaskDescriptionEditor.Text?.Trim();
+        Composer.IncludePendingStep();
         var priority = Enum.IsDefined(typeof(TaskPriority), NewTaskPriorityPicker.SelectedIndex)
             ? (TaskPriority)NewTaskPriorityPicker.SelectedIndex
             : TaskPriority.Low;
@@ -213,7 +215,7 @@ public partial class TaskListView : ContentView
         {
             if (_editingTask is null)
             {
-                task = await _taskService.AddAsync(text, description, priority, dueAt, category);
+                task = await _taskService.AddAsync(text, description, priority, dueAt, category, Composer.DraftSteps);
                 Tasks.Add(task);
             }
             else
@@ -229,7 +231,10 @@ public partial class TaskListView : ContentView
                     ReminderSnoozedUntil = original.ReminderSnoozedUntil,
                     ReminderDismissedForDueAt = original.ReminderDismissedForDueAt
                 };
+                foreach (var step in Composer.DraftSteps) draft.Steps.Add(step.Copy());
                 await _taskService.UpdateAsync(draft);
+                foreach (var step in original.Steps.ToList()) original.Steps.Remove(step);
+                foreach (var step in draft.Steps.Where(step => !string.IsNullOrWhiteSpace(step.Text))) original.Steps.Add(step.Copy());
                 original.Text = draft.Text;
                 original.Description = draft.Description;
                 original.Priority = draft.Priority;
@@ -332,6 +337,7 @@ public partial class TaskListView : ContentView
         if (IsComposerExpanded || sender is not BindableObject { BindingContext: TaskItem task })
             return;
         _editingTask = task;
+        Composer.SetSteps(task.Steps);
         NewTaskEntry.Text = task.Text;
         NewTaskDescriptionEditor.Text = task.Description;
         NewTaskPriorityPicker.SelectedIndex = (int)task.Priority;
@@ -460,5 +466,26 @@ public partial class TaskListView : ContentView
     private void UpdateClearCompletedButton()
     {
         ClearCompletedButton.IsEnabled = Tasks.Any(task => task.IsCompleted && (!_categoryView || task.Category == _selectedCategory));
+    }
+
+    private void OnStepsToggleClicked(object? sender, EventArgs e)
+    {
+        if (sender is BindableObject { BindingContext: TaskItem task }) task.StepsExpanded = !task.StepsExpanded;
+    }
+
+    private async void OnStepCompletionChanged(object? sender, CheckedChangedEventArgs e)
+    {
+        if (sender is not CheckBox { BindingContext: TaskStep step } checkbox || step.IsCompleted == e.Value) return;
+        var task = Tasks.FirstOrDefault(item => item.Id == step.TaskItemId);
+        if (task is null) return;
+        checkbox.IsEnabled = false;
+        try { await _taskService.SetStepCompletedAsync(task, step, e.Value); }
+        catch
+        {
+            checkbox.IsChecked = step.IsCompleted;
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+            if (page is not null) await page.DisplayAlertAsync(AppResources.TaskSaveFailedTitle, AppResources.TaskSaveFailedMessage, AppResources.OkButton);
+        }
+        finally { checkbox.IsEnabled = true; }
     }
 }
