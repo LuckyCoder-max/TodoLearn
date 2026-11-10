@@ -17,6 +17,7 @@ namespace TodoLearn.WinUI
         /// </summary>
         public App()
         {
+            UnhandledException += (_, args) => TodoLearn.Services.SimpleLogger.Log(args.Exception.ToString());
             Microsoft.Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = "en-GB";
             this.InitializeComponent();
         }
